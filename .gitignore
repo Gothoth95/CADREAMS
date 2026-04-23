@@ -2,7 +2,32 @@
 **/bin/Debug/**
 **/obj/Debug/**
 */obj/**
-Output/
+# Build pubblicata: solo Release net48 (clone e avvio senza compilare)
+Output/*
+!Output/net48/
+!Output/net48/**
+Output/net48/**/*.pdb
+Output/net48/Profiles/
+Output/net48/Backup/
+Output/net48/Screenshots/
+Output/net48/UserData_Backup*/
+Output/net48/macros.db
+Output/net48/Assistant.json
+
+# Script/test personali nella cartella publish (non in repo)
+Output/net48/Macro_*.py
+Output/net48/buff_scan.py
+Output/net48/export_backpack_nome_grafico.py
+Output/net48/export_potions_tiledata.py
+Output/net48/pvp_auto_potions.py
+Output/net48/Probe_IronPython_Modules.py
+Output/net48/Prova_ClassicAssist.py
+Output/net48/RE_API_smoke_test.py
+Output/net48/verify_classicassist_api.py
+Output/net48/timer_dashboard_gui.py
+Output/net48/timer_dashboard_ironpython.py
+Output/net48/Modules/uo_helpers.py
+
 Output2/
 packages/
 ClassicAssist/ClassicAssist.csproj.user
