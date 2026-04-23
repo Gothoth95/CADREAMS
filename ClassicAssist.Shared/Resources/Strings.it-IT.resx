@@ -1066,6 +1066,9 @@
   <data name="Autostart" xml:space="preserve">
     <value>Autostart</value>
   </data>
+  <data name="Auto syntax check" xml:space="preserve">
+    <value>Controllo sintassi automatico</value>
+  </data>
   <data name="When checked macro will execute automatically after login." xml:space="preserve">
     <value>Se spuntata, lo Script verrà eseguito appena entrati in game.</value>
   </data>
@@ -1170,6 +1173,9 @@
   </data>
   <data name="Macro Commands Wiki (Launches in Browser)" xml:space="preserve">
     <value>Wiki online dei comandi (apri nel browser)</value>
+  </data>
+  <data name="Macro examples" xml:space="preserve">
+    <value>Esempi macro</value>
   </data>
   <data name="MACRO_WIKI_URL" xml:space="preserve">
     <value>https://github.com/Reetus/ClassicAssist/wiki/Macro-Commands-(it-IT)</value>

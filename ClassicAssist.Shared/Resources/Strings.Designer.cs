@@ -502,6 +502,15 @@ namespace ClassicAssist.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Auto syntax check.
+        /// </summary>
+        public static string Auto_syntax_check {
+            get {
+                return ResourceManager.GetString("Auto syntax check", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Autologin.
         /// </summary>
         public static string Autologin {
@@ -3099,6 +3108,15 @@ namespace ClassicAssist.Shared.Resources {
         public static string Macro_error___0_ {
             get {
                 return ResourceManager.GetString("Macro error: {0}", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Macro examples.
+        /// </summary>
+        public static string Macro_examples {
+            get {
+                return ResourceManager.GetString("Macro examples", resourceCulture);
             }
         }
         

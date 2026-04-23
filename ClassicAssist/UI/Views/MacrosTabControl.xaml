@@ -10,6 +10,7 @@
              xmlns:viewModels="clr-namespace:ClassicAssist.UI.ViewModels"
              xmlns:resources="clr-namespace:ClassicAssist.Shared.Resources;assembly=ClassicAssist.Shared"
              xmlns:valueConverters="clr-namespace:ClassicAssist.UI.Misc.ValueConverters"
+             xmlns:sharedValueConverters="clr-namespace:ClassicAssist.Shared.UI.ValueConverters;assembly=ClassicAssist.Shared"
              xmlns:hotkeys="clr-namespace:ClassicAssist.Data.Hotkeys"
              xmlns:misc1="clr-namespace:ClassicAssist.Misc"
              xmlns:draggableTreeView="clr-namespace:ClassicAssist.Controls.DraggableTreeView;assembly=ClassicAssist.Controls"
@@ -33,6 +34,7 @@
             <valueConverters:CellWidthValueConverter x:Key="CellWidthValueConverter" />
             <valueConverters:DraggableGroupVisibilityValueConverter x:Key="DraggableGroupVisibilityConverter" />
             <misc1:BindingProxy x:Key="Proxy" Data="{Binding}" />
+            <sharedValueConverters:NullToBooleanConverter x:Key="MacroSelectedConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
     <UserControl.DataContext>
@@ -347,6 +349,9 @@
                 <CheckBox Content="{x:Static resources:Strings.Global}"
                           ToolTip="{x:Static resources:Strings.Loaded_to_all_profiles}"
                           IsChecked="{Binding SelectedItem.Global}" />
+                <CheckBox Content="{x:Static resources:Strings.Auto_syntax_check}"
+                          IsChecked="{Binding AutoValidateSyntax}"
+                          ToolTip="{x:Static resources:Strings.Auto_syntax_check}" />
                 <!-- ReSharper restore Xaml.BindingWithContextNotResolved -->
             </WrapPanel>
             <Grid Grid.Row="4">
@@ -364,6 +369,20 @@
                     </controls1:StretchyWrapPanel.Resources>
                     <Button Content="{x:Static resources:Strings.Object_Inspector}"
                             Command="{Binding InspectObjectCommand, Mode=OneWay}" />
+                    <Menu Background="Transparent" VerticalAlignment="Center" Margin="0,5,5,0"
+                          IsEnabled="{Binding SelectedItem, Converter={StaticResource MacroSelectedConverter}}">
+                        <MenuItem Header="{x:Static resources:Strings.Macro_examples}"
+                                  ItemsSource="{Binding MacroExampleItems}">
+                            <MenuItem.ItemContainerStyle>
+                                <Style TargetType="MenuItem">
+                                    <Setter Property="Header" Value="{Binding MenuHeader}" />
+                                    <Setter Property="Command"
+                                            Value="{Binding DataContext.InsertMacroExampleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                    <Setter Property="CommandParameter" Value="{Binding}" />
+                                </Style>
+                            </MenuItem.ItemContainerStyle>
+                        </MenuItem>
+                    </Menu>
                     <Button Content="{x:Static resources:Strings.Commands}" Command="{Binding ShowCommandsCommand}" />
                     <Button Command="{Binding ShowMacrosWikiCommand}" Padding="5"
                             ToolTip="{x:Static resources:Strings.Macro_Commands_Wiki__Launches_in_Browser_}">

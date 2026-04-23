@@ -1063,6 +1063,9 @@
   <data name="Autostart" xml:space="preserve">
     <value>Autostart</value>
   </data>
+  <data name="Auto syntax check" xml:space="preserve">
+    <value>Auto syntax check</value>
+  </data>
   <data name="When checked macro will execute automatically after login." xml:space="preserve">
     <value>When checked macro will execute automatically after login.</value>
   </data>
@@ -1167,6 +1170,9 @@
   </data>
   <data name="Macro Commands Wiki (Launches in Browser)" xml:space="preserve">
     <value>Macro Commands Wiki (Launches in Browser)</value>
+  </data>
+  <data name="Macro examples" xml:space="preserve">
+    <value>Macro examples</value>
   </data>
   <data name="MACRO_WIKI_URL" xml:space="preserve">
     <value>https://github.com/Reetus/ClassicAssist/wiki/Macro-Commands</value>

@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -29,6 +30,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Assistant;
 using ClassicAssist.Browser.Models;
 using ClassicAssist.Controls.DraggableTreeView;
@@ -94,6 +96,11 @@ namespace ClassicAssist.UI.ViewModels
         private ICommand _stepCommand;
         private ICommand _stopCommand;
         private ICommand _toggleSearchCommand;
+        private bool _autoValidateSyntax = true;
+        private ICommand _insertMacroExampleCommand;
+        private MacroEntry _macroTextSubscription;
+        private int _syntaxCheckGeneration;
+        private DispatcherTimer _syntaxCheckTimer;
 
         public MacrosTabViewModel() : base( Strings.Macros )
         {
@@ -118,6 +125,20 @@ namespace ClassicAssist.UI.ViewModels
             _manager.MacroStartedEvent += OnMacroStartedEvent;
             Items.CollectionChanged += UpdateDraggables;
             Draggables.CollectionChanged += ( s, ea ) => UpdateFilteredItems();
+
+            EnsureSyntaxCheckTimer();
+        }
+
+        public bool AutoValidateSyntax
+        {
+            get => _autoValidateSyntax;
+            set => SetProperty( ref _autoValidateSyntax, value, afterChange: v =>
+            {
+                if ( v && SelectedItem != null )
+                {
+                    ScheduleSyntaxCheck();
+                }
+            } );
         }
 
         public int CaretPosition
@@ -177,6 +198,12 @@ namespace ClassicAssist.UI.ViewModels
         }
 
         public ICommand InspectObjectCommand => _inspectObjectCommand ?? ( _inspectObjectCommand = new RelayCommandAsync( InspectObject, o => Engine.Connected ) );
+
+        public ICommand InsertMacroExampleCommand =>
+            _insertMacroExampleCommand ?? ( _insertMacroExampleCommand = new RelayCommand( InsertMacroExample,
+                o => SelectedItem != null && ( o == null || o is MacroExampleItem ) ) );
+
+        public MacroExampleItem[] MacroExampleItems => MacroScriptExamples.All;
 
         public bool IsFilterOpen
         {
@@ -244,12 +271,31 @@ namespace ClassicAssist.UI.ViewModels
             get => _selectedItem;
             set
             {
+                if ( _macroTextSubscription != null )
+                {
+                    _macroTextSubscription.PropertyChanged -= OnSelectedMacroTextPropertyChanged;
+                    _macroTextSubscription = null;
+                }
+
                 SetProperty( ref _selectedItem, value );
                 OnPropertyChanged( nameof( Hotkey ) );
 
                 if ( Document != null )
                 {
                     Document.UndoStack.SizeLimit = 0;
+                }
+
+                FormatError = null;
+
+                if ( _selectedItem != null )
+                {
+                    _macroTextSubscription = _selectedItem;
+                    _macroTextSubscription.PropertyChanged += OnSelectedMacroTextPropertyChanged;
+
+                    if ( AutoValidateSyntax )
+                    {
+                        ScheduleSyntaxCheck();
+                    }
                 }
             }
         }
@@ -1096,6 +1142,108 @@ namespace ClassicAssist.UI.ViewModels
             return newSelectedIndex;
         }
 
+        private void InsertMacroExample( object obj )
+        {
+            if ( SelectedItem == null || !( obj is MacroExampleItem example ) )
+            {
+                return;
+            }
+
+            string block = example.Code.TrimEnd() + "\r\n";
+
+            if ( string.IsNullOrWhiteSpace( SelectedItem.Macro ) )
+            {
+                SelectedItem.Macro = block;
+            }
+            else
+            {
+                SelectedItem.Macro =
+                    SelectedItem.Macro.TrimEnd() + "\r\n\r\n# --- " + example.MenuHeader + " ---\r\n" + block;
+            }
+
+            ScheduleSyntaxCheck();
+        }
+
+        private void OnSelectedMacroTextPropertyChanged( object sender, PropertyChangedEventArgs e )
+        {
+            if ( e.PropertyName != nameof( MacroEntry.Macro ) )
+            {
+                return;
+            }
+
+            if ( AutoValidateSyntax )
+            {
+                ScheduleSyntaxCheck();
+            }
+        }
+
+        private void EnsureSyntaxCheckTimer()
+        {
+            if ( _syntaxCheckTimer != null )
+            {
+                return;
+            }
+
+            _syntaxCheckTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds( 700 ) };
+            _syntaxCheckTimer.Tick += SyntaxCheckTimerOnTick;
+        }
+
+        private void ScheduleSyntaxCheck()
+        {
+            if ( !AutoValidateSyntax )
+            {
+                return;
+            }
+
+            EnsureSyntaxCheckTimer();
+            _syntaxCheckTimer.Stop();
+            _syntaxCheckTimer.Start();
+        }
+
+        private void SyntaxCheckTimerOnTick( object sender, EventArgs e )
+        {
+            _syntaxCheckTimer.Stop();
+
+            if ( !AutoValidateSyntax )
+            {
+                return;
+            }
+
+            MacroEntry entry = SelectedItem;
+
+            if ( entry == null )
+            {
+                return;
+            }
+
+            int gen = ++_syntaxCheckGeneration;
+            string code = entry.Macro ?? string.Empty;
+
+            Task.Run( () =>
+            {
+                MacroSyntaxValidation.TryValidate( code, out string err );
+                return err;
+            } ).ContinueWith( t =>
+            {
+                _dispatcher.BeginInvoke( new Action( () =>
+                {
+                    if ( gen != _syntaxCheckGeneration || SelectedItem != entry )
+                    {
+                        return;
+                    }
+
+                    if ( t.IsFaulted )
+                    {
+                        FormatError = t.Exception?.GetBaseException().Message;
+                    }
+                    else
+                    {
+                        FormatError = t.Result;
+                    }
+                } ) );
+            }, TaskScheduler.Default );
+        }
+
         private async Task FormatCode( object obj )
         {
             if ( !( obj is MacroEntry macroEntry ) )
@@ -1135,6 +1283,8 @@ namespace ClassicAssist.UI.ViewModels
                 {
                     macroEntry.Macro = scope.GetVariable<string>( "formatted_code" ).Replace( "\n", "\r\n" );
                 }
+
+                ScheduleSyntaxCheck();
             }
             catch ( Exception e )
             {
