@@ -1,0 +1,154 @@
+{
+  "ClientPaths": [
+    "C:\\Users\\MennE\\Desktop\\ClassicUO\\ClassicUO.exe"
+  ],
+  "SelectedClientPath": "C:\\Users\\MennE\\Desktop\\ClassicUO\\ClassicUO.exe",
+  "DataPaths": [
+    "C:\\Users\\MennE\\Desktop\\UOAlive 7.0.113.00"
+  ],
+  "SelectedDataPath": "C:\\Users\\MennE\\Desktop\\UOAlive 7.0.113.00",
+  "SelectedShard": "dreams",
+  "Shards": [
+    {
+      "Name": "dreams",
+      "Address": "login.uodreams.com",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Encryption": false
+    }
+  ],
+  "DeletedPresets": [],
+  "Plugins": [],
+  "OverridePresets": true,
+  "ShardsHash": "29FCF02823463D4542F4D322E1AA21CF7B97948F",
+  "ShardsDateTime": "2026-04-23T16:40:54.8023199+02:00",
+  "Presets": [
+    {
+      "Name": "Official EA Servers",
+      "Address": "login.ultimaonline.com",
+      "Port": 7775,
+      "HasStatusProtocol": false,
+      "Website": "http://www.uo.com/",
+      "Encryption": true
+    },
+    {
+      "Name": "Heritage UO",
+      "Address": "play.trueuo.com",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Website": "https://trueuo.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "NoTramAos",
+      "Address": "notramaos.servegame.com",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Website": "http://notramaos.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "The Crossroads (ML)",
+      "Address": "login.uocrossroads.net",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Website": "https://www.uocrossroads.net",
+      "Encryption": false
+    },
+    {
+      "Name": "UO Elemental",
+      "Address": "login.uoelemental.com",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Website": "https://uoelemental.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "UO Evolution",
+      "Address": "play.uoevolution.com",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Website": "http://uoevolution.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "UO Forever",
+      "Address": "login.uoforever.com",
+      "Port": 2599,
+      "HasStatusProtocol": true,
+      "Website": "https://www.uoforever.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "UO:Renaissance",
+      "Address": "login.uorenaissance.com",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Website": "http://www.uorenaissance.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "UOAlive",
+      "Address": "login.uoalive.com",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Website": "https://uoalive.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "UOGamers: Demise",
+      "Address": "login.uogdemise.com",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Website": "https://uogdemise.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "UOGamers: Hybrid",
+      "Address": "login.uohybrid.com",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Website": "http://uohybrid.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "UOTopia: Awakening",
+      "Address": "uotopia.ddns.net",
+      "Port": 2593,
+      "HasStatusProtocol": true,
+      "Website": "http://uotopia.weebly.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "UOTopia: Legends",
+      "Address": "uotopia.ddns.net",
+      "Port": 2596,
+      "HasStatusProtocol": true,
+      "Website": "http://uotopia.weebly.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "UOTopia: Origins",
+      "Address": "uotopia.ddns.net",
+      "Port": 2595,
+      "HasStatusProtocol": true,
+      "Website": "http://uotopia.weebly.com/",
+      "Encryption": false
+    },
+    {
+      "Name": "UOTopia: The New Age",
+      "Address": "uotopia.ddns.net",
+      "Port": 2594,
+      "HasStatusProtocol": true,
+      "Website": "http://uotopia.weebly.com/",
+      "Encryption": false
+    }
+  ],
+  "Autologin": "False",
+  "AutoReconnect": "False",
+  "ClientVersion": "",
+  "Debug": "False",
+  "OverrideClientVersion": "False",
+  "ReconnectTime": "60000",
+  "SkipLoginScreen": "False"
+}
