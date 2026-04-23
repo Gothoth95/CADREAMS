@@ -1,0 +1,56 @@
+================================================================================
+ClassicAssist – build personalizzata (Gothoth95)
+Basato su ClassicAssist (GPL-3.0): https://github.com/Reetus/ClassicAssist
+================================================================================
+
+COS’È QUESTA CARTELLA
+---------------------
+È la cartella di ClassicAssist già pronta per ClassicUO (contiene
+ClassicAssist.dll e gli altri file necessari).
+
+DOVE METTERLA
+-------------
+1) Chiudi ClassicUO se è aperto.
+
+2) Sostituisci la tua vecchia cartella ClassicAssist con questa, oppure
+   imposta in ClassicUO il percorso di questa cartella (dove c’è ClassicAssist.dll).
+
+3) Riavvia ClassicUO e apri ClassicAssist: controlla profilo e hotkey.
+
+SE AVEVI GIÀ CLASSICASSIST (profili, hotkey, script)
+---------------------------------------------------
+ClassicAssist salva le tue cose nella cartella dove si trova ClassicAssist.dll:
+
+  • Assistant.json     → impostazioni generali, ultimo profilo
+  • Profiles\          → profili (.json, es. settings.json)
+  • Hotkeys.json       → tasti rapidi globali
+  • Skills.json        → dati skill (se presente)
+  • macros.db          → database macro (se lo usi)
+  • *.py nella radice  → script / macro IronPython
+  • Modules\           → moduli Python tuoi (es. uo_helpers.py)
+
+PRIMA di sostituire tutta la cartella:
+
+  A) Fai una COPIA di backup della vecchia cartella.
+
+  B) Copia dalla vecchia alla NUOVA (sovrascrivi se richiesto):
+     Hotkeys.json, Skills.json, tutta Profiles\, macros.db (se c’è),
+     i tuoi .py nella radice, i tuoi file in Modules\.
+
+  C) Se copi Assistant.json dalla vecchia cartella, aprilo con Blocco note:
+     se ci sono percorsi (path) che puntano ancora alla cartella vecchia,
+     sostituiscili con il percorso COMPLETO della nuova cartella.
+
+  D) Non copiare l’intera vecchia installazione sopra la nuova: solo i file
+     elencati, per non mischiare versioni diverse.
+
+CODICE SORGENTE
+---------------
+Il link al repository GitHub di Gothoth95 va messo qui dopo la pubblicazione
+(oppure chiedi il link a chi ti ha passato questa build).
+
+LICENZA
+-------
+GNU General Public License v3. Vedi LICENSE.txt nel progetto sorgente.
+
+================================================================================

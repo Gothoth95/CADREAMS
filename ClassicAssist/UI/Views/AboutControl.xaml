@@ -1,0 +1,171 @@
+﻿<UserControl x:Class="ClassicAssist.UI.Views.AboutControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:ClassicAssist.UI.ViewModels"
+             xmlns:r="clr-namespace:ClassicAssist.Shared.Resources;assembly=ClassicAssist.Shared"
+             xmlns:valueConverters="clr-namespace:ClassicAssist.UI.Misc.ValueConverters"
+             xmlns:headered="clr-namespace:ClassicAssist.Controls.Headered;assembly=ClassicAssist.Controls"
+             xmlns:controls="clr-namespace:ClassicAssist.Controls;assembly=ClassicAssist.Controls"
+             mc:Ignorable="d"
+             d:DesignHeight="350" d:DesignWidth="600"
+             d:DataContext="{d:DesignInstance {x:Type viewModels:AboutControlViewModel}, IsDesignTimeCreatable=True}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Resources/DarkTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <UserControl.DataContext>
+        <viewModels:AboutControlViewModel />
+    </UserControl.DataContext>
+    <d:DesignerProperties.DesignStyle>
+        <Style TargetType="UserControl">
+            <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
+        </Style>
+    </d:DesignerProperties.DesignStyle>
+    <Grid>
+        <Grid.Resources>
+            <valueConverters:IntToHexStringValueConverter x:Key="IntToHexStringValueConverter" />
+            <valueConverters:DateTimeToTimeSpanValueConverter x:Key="DateTimeToTimeSpanValueConverter" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <Style TargetType="{x:Type GroupBox}" BasedOn="{StaticResource {x:Type GroupBox}}">
+                <Setter Property="Margin" Value="5" />
+                <Setter Property="Padding" Value="5" />
+            </Style>
+            <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}">
+                <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+            </Style>
+            <Style TargetType="{x:Type headered:HorizontalHeaderedContentControl}">
+                <Setter Property="HeaderMinWidth" Value="65" />
+            </Style>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <GroupBox Header="{x:Static r:Strings.Software}" Grid.Row="0" Grid.Column="0">
+            <StackPanel>
+                <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Product_}">
+                    <TextBlock Text="{Binding Product}" />
+                </headered:HorizontalHeaderedContentControl>
+                <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Version_}">
+                    <TextBlock Text="{Binding Version}" />
+                </headered:HorizontalHeaderedContentControl>
+                <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Build_Date_}">
+                    <TextBlock Text="{Binding BuildDate}" />
+                </headered:HorizontalHeaderedContentControl>
+                <Grid Margin="5">
+                    <TextBlock Text="{x:Static r:Strings.Made_For_Malo}" HorizontalAlignment="Center" FontWeight="Bold"
+                               MouseEnter="TextBlock_MouseEnter" MouseLeave="TextBlock_MouseLeave" Margin="0,10"
+                               TextDecorations="Underline" />
+                </Grid>
+                <Grid Margin="0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Content="{x:Static r:Strings.Project_Homepage}" Command="{Binding LaunchHomepageCommand}"
+                            Grid.Column="0" Margin="0,0,5,0" />
+                    <Button Content="{x:Static r:Strings.Check_For_Updates}" Command="{Binding CheckForUpdatesCommand}"
+                            Grid.Column="1" Margin="5,0,0,0" />
+                </Grid>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="{x:Static r:Strings.World_Status}" Grid.Row="0" Grid.Column="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel>
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="Margin" Value="5" />
+                            <Setter Property="Width" Value="150" />
+                        </Style>
+                    </StackPanel.Resources>
+                    <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Connected_}">
+                        <TextBlock
+                            Text="{Binding ConnectedTime, Converter={StaticResource DateTimeToTimeSpanValueConverter}}"
+                            Visibility="{Binding Connected, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </headered:HorizontalHeaderedContentControl>
+                    <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Items_}">
+                        <TextBlock Text="{Binding ItemCount}" />
+                    </headered:HorizontalHeaderedContentControl>
+                    <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Mobiles_}">
+                        <TextBlock Text="{Binding MobileCount}" />
+                    </headered:HorizontalHeaderedContentControl>
+                    <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Latency_}">
+                        <Label Content="{Binding Latency}" ContentStringFormat="{}{0}ms" />
+                    </headered:HorizontalHeaderedContentControl>
+                </StackPanel>
+                <Button Content="{x:Static r:Strings.Show_World_Items}" IsEnabled="{Binding Connected}"
+                        Command="{Binding ShowItemsCommand}" Margin="0,10" Grid.Row="1" />
+            </Grid>
+        </GroupBox>
+        <GroupBox Header="{x:Static r:Strings.Misc}" Grid.Row="1" Grid.Column="0">
+            <StackPanel Margin="10">
+                <controls:ImageButton ImageHeight="50" MaxWidth="80"
+                                      Command="{Binding OpenPayPalCommand}" ImageSource="{StaticResource PayPalIcon}">
+                    <controls:ImageButton.Style>
+                        <Style TargetType="{x:Type controls:ImageButton}">
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type controls:ImageButton}">
+                                        <Border x:Name="Border" BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="1">
+                                            <ContentPresenter x:Name="Content" HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center" />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Border" Property="BorderBrush"
+                                                        Value="{StaticResource ThemeBorderBrush}" />
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </controls:ImageButton.Style>
+                </controls:ImageButton>
+                <TextBlock
+                    Text="{x:Static r:Strings.Donating_helps_support_continued_development__your_support_is_appreciated_}"
+                    TextWrapping="Wrap" TextAlignment="Center" />
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="{x:Static r:Strings.Player}" Grid.Row="1" Grid.Column="1">
+            <StackPanel>
+                <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Shard_}">
+                    <TextBlock Text="{Binding ShardName}" />
+                </headered:HorizontalHeaderedContentControl>
+                <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Features_}">
+                    <TextBlock Text="{Binding ShardFeatures}" />
+                </headered:HorizontalHeaderedContentControl>
+                <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Name_}">
+                    <TextBlock Text="{Binding PlayerName}" />
+                </headered:HorizontalHeaderedContentControl>
+                <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Serial_}">
+                    <TextBlock
+                        Text="{Binding PlayerSerial, Converter={StaticResource IntToHexStringValueConverter}}" />
+                </headered:HorizontalHeaderedContentControl>
+                <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Last_Target_}">
+                    <TextBlock
+                        Text="{Binding LastTargetSerial, Converter={StaticResource IntToHexStringValueConverter}}" />
+                </headered:HorizontalHeaderedContentControl>
+                <headered:HorizontalHeaderedContentControl Header="{x:Static r:Strings.Status_}">
+                    <TextBlock Text="{Binding PlayerStatus}" />
+                </headered:HorizontalHeaderedContentControl>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</UserControl>

@@ -1,0 +1,63 @@
+<UserControl x:Class="ClassicAssist.UI.Views.ItemBrowserTabControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewModels="clr-namespace:ClassicAssist.UI.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="600">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Resources/DarkTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <UserControl.DataContext>
+        <viewModels:ItemBrowserTabViewModel />
+    </UserControl.DataContext>
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Da ID" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <TextBox Width="80" Text="{Binding RangeStart, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" />
+            <TextBlock Text="A ID" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <TextBox Width="80" Text="{Binding RangeEnd, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" />
+            <TextBlock Text="Cerca (nome / ID / 0xID)" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <TextBox Width="160" Text="{Binding NameFilter, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,10,0" />
+            <Button Content="Carica Item" Command="{Binding LoadItemsCommand}" MinWidth="90" />
+        </StackPanel>
+
+        <ListView Grid.Row="1" ItemsSource="{Binding ItemsView}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Grafico" Width="70">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#444" BorderThickness="1" Width="42" Height="42" Padding="2">
+                                    <Image Source="{Binding Image}" Stretch="Uniform" />
+                                </Border>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="ItemID (Dec)" Width="90" DisplayMemberBinding="{Binding ItemID}" />
+                    <GridViewColumn Header="ItemID (Hex)" Width="90">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding ItemID, StringFormat=0x{0:X4}}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Nome" Width="300" DisplayMemberBinding="{Binding Name}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <TextBlock Grid.Row="2" Text="{Binding Status}" Margin="0,8,0,0" />
+    </Grid>
+</UserControl>

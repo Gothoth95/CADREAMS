@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="ClassicAssist.UI.Views.Debug.DebugGumpControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:debug="clr-namespace:ClassicAssist.UI.ViewModels.Debug"
+             xmlns:controls="clr-namespace:ClassicAssist.Controls;assembly=ClassicAssist.Controls"
+             mc:Ignorable="d" Background="{DynamicResource ThemeBackgroundBrush}"
+             d:DesignHeight="400" d:DesignWidth="550">
+    <UserControl.DataContext>
+        <debug:DebugGumpViewModel />
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../../Resources/DarkTheme.xaml" />
+                <ResourceDictionary Source="Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <controls:TwoColumnSplitterControl>
+        <controls:TwoColumnSplitterControl.LeftContent>
+            <ListBox MinWidth="120" ItemsSource="{Binding Items}"
+                     SelectedItem="{Binding SelectedItem}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding ID, StringFormat={}0x{0:x8}}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </controls:TwoColumnSplitterControl.LeftContent>
+        <controls:TwoColumnSplitterControl.RightContent>
+            <TextBox Text="{Binding Text}" VerticalScrollBarVisibility="Auto"
+                     Style="{DynamicResource TextBoxStyle}" />
+        </controls:TwoColumnSplitterControl.RightContent>
+    </controls:TwoColumnSplitterControl>
+</UserControl>

@@ -1,0 +1,79 @@
+﻿<Window x:Class="ClassicAssist.UI.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ClassicAssist.UI.Views"
+        xmlns:viewModels="clr-namespace:ClassicAssist.UI.ViewModels"
+        xmlns:r="clr-namespace:ClassicAssist.Shared.Resources;assembly=ClassicAssist.Shared"
+        xmlns:misc="clr-namespace:ClassicAssist.UI.Misc"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:controls="clr-namespace:ClassicAssist.UI.Controls"
+        xmlns:browser="clr-namespace:ClassicAssist.Browser"
+        xmlns:behaviours="clr-namespace:ClassicAssist.UI.Misc.Behaviours"
+        mc:Ignorable="d"
+        Height="500" Width="625" Topmost="{Binding CurrentOptions.AlwaysOnTop}"
+        MinHeight="400" MinWidth="400"
+        Background="{DynamicResource ThemeWindowBackgroundBrush}"
+        AllowsTransparency="True" WindowStyle="None" WindowState="Normal"
+        Title="{Binding Title}" x:Name="window" ResizeMode="CanResizeWithGrip">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="{Binding Height, ElementName=CustomWindowTitleControl}" />
+    </WindowChrome.WindowChrome>
+    <i:Interaction.Behaviors>
+        <misc:LoadOptionsOnWindowLoaded />
+        <behaviours:WindowResizeBehaviour />
+    </i:Interaction.Behaviors>
+    <Window.DataContext>
+        <viewModels:MainWindowViewModel />
+    </Window.DataContext>
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Resources/DarkTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <DockPanel>
+        <controls:CustomWindowTitleControl DockPanel.Dock="Top" CustomTitle="{Binding Path=Title, ElementName=window}"
+                                           CanClose="False" x:Name="CustomWindowTitleControl"
+                                           MinimizeCommand="{Binding MinimizeCommand}">
+            <controls:CustomWindowTitleControl.AdditionalButtons>
+                <Button Command="{Binding DebugCommand}" Padding="0" Height="20" Width="20">
+                    <Image Source="{StaticResource bugIcon}" Height="16" Width="16" />
+                </Button>
+            </controls:CustomWindowTitleControl.AdditionalButtons>
+        </controls:CustomWindowTitleControl>
+        <Grid Margin="10,0,10,10">
+            <TabControl SelectedIndex="{Binding CurrentOptions.SelectedTabIndex}">
+                <TabItem Header="{x:Static r:Strings.General}">
+                    <local:GeneralControl />
+                </TabItem>
+                <TabItem Header="{x:Static r:Strings.Options}">
+                    <local:OptionsTabControl />
+                </TabItem>
+                <TabItem Header="{x:Static r:Strings.Hotkeys}">
+                    <local:HotkeysTabControl />
+                </TabItem>
+                <TabItem Header="{x:Static r:Strings.Macros}">
+                    <local:MacrosTabControl />
+                </TabItem>
+                <TabItem Header="{x:Static r:Strings.Skills}">
+                    <local:SkillsTabControl />
+                </TabItem>
+                <TabItem Header="{x:Static r:Strings.Agents}">
+                    <local:AgentsTabControl />
+                </TabItem>
+                <TabItem Header="{x:Static r:Strings.Public_Macros}">
+                    <browser:MacroBrowserControl />
+                </TabItem>
+                <TabItem Header="Item Browser">
+                    <local:ItemBrowserTabControl />
+                </TabItem>
+                <TabItem Header="{x:Static r:Strings.About}">
+                    <local:AboutControl />
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>
