@@ -48,15 +48,26 @@ namespace ClassicAssist.Data.Targeting
 
             Mobile mobile = m as Mobile ?? Engine.Mobiles.GetMobile( m.Serial );
             int hue = mobile != null ? Options.CurrentOptions.GetNotorietyHue( mobile.Notoriety ) : 34;
+            string targetName = m.Name?.Trim() ?? "Unknown";
 
             if ( !MacroManager.QuietMode )
             {
-                MsgCommands.HeadMsg( Options.CurrentOptions.EnemyTargetMessage, m.Serial, hue );
+                string targetMessage = BuildTargetMessage( Options.CurrentOptions.EnemyTargetMessage, targetName );
+                string selfMessage = BuildTargetMessage( Options.CurrentOptions.EnemyTargetSelfMessage, targetName );
+
+                if ( !string.IsNullOrWhiteSpace( targetMessage ) )
+                {
+                    MsgCommands.HeadMsg( targetMessage, m.Serial, hue );
+                }
+
+                if ( !string.IsNullOrWhiteSpace( selfMessage ) && Engine.Player != null )
+                {
+                    MsgCommands.HeadMsg( selfMessage, Engine.Player.Serial, hue );
+                }
             }
 
             if ( m.Serial != Engine.Player.EnemyTargetSerial )
             {
-                MsgCommands.HeadMsg( $"Target: {m.Name?.Trim() ?? "Unknown"}", m.Serial, hue );
                 EnemyChangedEvent?.Invoke( m.Serial, Engine.Player.EnemyTargetSerial );
                 LastTargetChangedEvent?.Invoke( m.Serial, Engine.Player.LastTargetSerial );
             }
@@ -400,6 +411,23 @@ namespace ClassicAssist.Data.Targeting
             }
 
             return m;
+        }
+
+        private static string BuildTargetMessage( string template, string name )
+        {
+            if ( string.IsNullOrWhiteSpace( template ) )
+            {
+                return string.Empty;
+            }
+
+            string cleanName = string.IsNullOrWhiteSpace( name ) ? "Unknown" : name.Trim();
+
+            if ( template.Contains( "{0}" ) )
+            {
+                return string.Format( template, cleanName );
+            }
+
+            return $"{template} {cleanName}".Trim();
         }
 
         private static Notoriety[] NotoFlagsToArray( TargetNotoriety notoFlags )

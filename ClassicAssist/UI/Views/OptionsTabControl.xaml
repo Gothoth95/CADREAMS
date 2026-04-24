@@ -127,6 +127,10 @@
                             Text="{Binding CurrentOptions.FriendTargetMessage}" />
                         <headered:HorizontalHeaderedTextBox Header="{x:Static resources:Strings.Enemy_target_message_}"
                                                             Text="{Binding CurrentOptions.EnemyTargetMessage}" />
+                        <headered:HorizontalHeaderedTextBox
+                            Header="{x:Static resources:Strings.Enemy_target_self_message_}"
+                            Text="{Binding CurrentOptions.EnemyTargetSelfMessage}"
+                            ToolTip="{x:Static resources:Strings.Target_message_format_hint}" />
                         <GroupBox Header="Colori Notorieta (Target Msg)" Margin="0,0,0,5">
                             <StackPanel Margin="5">
                                 <DockPanel LastChildFill="False" Margin="0,0,0,4">
@@ -181,6 +185,14 @@
                         <CheckBox IsChecked="{Binding CurrentOptions.PreventAttackingInnocentsInGuardzone}"
                                   ToolTip="{x:Static resources:Strings.Applies_to_hotkeys___macros_only_}"
                                   Content="{x:Static resources:Strings.Prevent_attacking_innocents_in_guardzone}" />
+                        <Button Content="{x:Static resources:Strings.Target_Next_PvP_Enemy}"
+                                ToolTip="{x:Static resources:Strings.Target_Next_PvP_Enemy_Hint}"
+                                Command="{Binding TargetNextPvpEnemyCommand}" />
+                        <DockPanel LastChildFill="False" Margin="0,0,0,4">
+                            <TextBlock Text="{x:Static resources:Strings.Attack_target_rehue_hue_}" Width="170" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding CurrentOptions.AttackTargetRehueHue}" Width="40" VerticalAlignment="Center" />
+                            <Button Content="Palette" Width="70" Command="{Binding SelectAttackTargetHueCommand}" />
+                        </DockPanel>
                         <optionsTab:QueueLastTargetControl DataContext="{Binding}" />
                     </StackPanel>
                 </GroupBox>

@@ -5,6 +5,7 @@ using System.Windows.Media;
 using ClassicAssist.Data;
 using ClassicAssist.Data.Hotkeys;
 using ClassicAssist.Data.Macros.Commands;
+using ClassicAssist.Data.Targeting;
 using ClassicAssist.Misc;
 using ClassicAssist.Shared.Resources;
 using ClassicAssist.Shared.UI;
@@ -22,9 +23,11 @@ namespace ClassicAssist.UI.ViewModels
         private static ICommand _macrosGumpChangedCommand;
         private ICommand _selectMacroTextColorCommand;
         private ICommand _selectNotorietyHueCommand;
+        private ICommand _selectAttackTargetHueCommand;
         private ICommand _setLanguageOverrideCommand;
         private ICommand _setUseClilocLanguageCommand;
         private ICommand _testNotorietyHueCommand;
+        private ICommand _targetNextPvpEnemyCommand;
 
         public ICommand MacrosGumpChangedCommand =>
             _macrosGumpChangedCommand ?? ( _macrosGumpChangedCommand = new RelayCommand( MacrosGumpChanged ) );
@@ -35,6 +38,10 @@ namespace ClassicAssist.UI.ViewModels
         public ICommand SelectNotorietyHueCommand =>
             _selectNotorietyHueCommand ?? ( _selectNotorietyHueCommand = new RelayCommand( SelectNotorietyHue ) );
 
+        public ICommand SelectAttackTargetHueCommand =>
+            _selectAttackTargetHueCommand ??
+            ( _selectAttackTargetHueCommand = new RelayCommand( SelectAttackTargetHue ) );
+
         public ICommand SetLanguageOverrideCommand =>
             _setLanguageOverrideCommand ?? ( _setLanguageOverrideCommand = new RelayCommand( SetLanguageOverride ) );
 
@@ -44,6 +51,10 @@ namespace ClassicAssist.UI.ViewModels
 
         public ICommand TestNotorietyHueCommand =>
             _testNotorietyHueCommand ?? ( _testNotorietyHueCommand = new RelayCommand( TestNotorietyHue, o => true ) );
+
+        public ICommand TargetNextPvpEnemyCommand =>
+            _targetNextPvpEnemyCommand ??
+            ( _targetNextPvpEnemyCommand = new RelayCommand( TargetNextPvpEnemy, o => true ) );
 
         public void Serialize( JObject json, bool global = false )
         {
@@ -85,6 +96,7 @@ namespace ClassicAssist.UI.ViewModels
             options.Add( "LastTargetMessage", CurrentOptions.LastTargetMessage );
             options.Add( "FriendTargetMessage", CurrentOptions.FriendTargetMessage );
             options.Add( "EnemyTargetMessage", CurrentOptions.EnemyTargetMessage );
+            options.Add( "EnemyTargetSelfMessage", CurrentOptions.EnemyTargetSelfMessage );
             options.Add( "HueNotorietyInnocent", CurrentOptions.HueNotorietyInnocent );
             options.Add( "HueNotorietyAlly", CurrentOptions.HueNotorietyAlly );
             options.Add( "HueNotorietyAttackable", CurrentOptions.HueNotorietyAttackable );
@@ -92,6 +104,7 @@ namespace ClassicAssist.UI.ViewModels
             options.Add( "HueNotorietyEnemy", CurrentOptions.HueNotorietyEnemy );
             options.Add( "HueNotorietyMurderer", CurrentOptions.HueNotorietyMurderer );
             options.Add( "HueNotorietyInvulnerable", CurrentOptions.HueNotorietyInvulnerable );
+            options.Add( "AttackTargetRehueHue", CurrentOptions.AttackTargetRehueHue );
             options.Add( "DefaultMacroQuietMode", CurrentOptions.DefaultMacroQuietMode );
             options.Add( "GetFriendEnemyUsesIgnoreList", CurrentOptions.GetFriendEnemyUsesIgnoreList );
             options.Add( "AbilitiesGump", CurrentOptions.AbilitiesGump );
@@ -176,6 +189,8 @@ namespace ClassicAssist.UI.ViewModels
             CurrentOptions.LastTargetMessage = config?["LastTargetMessage"]?.ToObject<string>() ?? "[Last Target]";
             CurrentOptions.FriendTargetMessage = config?["FriendTargetMessage"]?.ToObject<string>() ?? "[Friend]";
             CurrentOptions.EnemyTargetMessage = config?["EnemyTargetMessage"]?.ToObject<string>() ?? "[Enemy]";
+            CurrentOptions.EnemyTargetSelfMessage =
+                config?["EnemyTargetSelfMessage"]?.ToObject<string>() ?? "[Target] {0}";
             CurrentOptions.HueNotorietyInnocent = config?["HueNotorietyInnocent"]?.ToObject<int>() ?? 34;
             CurrentOptions.HueNotorietyAlly = config?["HueNotorietyAlly"]?.ToObject<int>() ?? 34;
             CurrentOptions.HueNotorietyAttackable = config?["HueNotorietyAttackable"]?.ToObject<int>() ?? 34;
@@ -183,6 +198,7 @@ namespace ClassicAssist.UI.ViewModels
             CurrentOptions.HueNotorietyEnemy = config?["HueNotorietyEnemy"]?.ToObject<int>() ?? 34;
             CurrentOptions.HueNotorietyMurderer = config?["HueNotorietyMurderer"]?.ToObject<int>() ?? 34;
             CurrentOptions.HueNotorietyInvulnerable = config?["HueNotorietyInvulnerable"]?.ToObject<int>() ?? 34;
+            CurrentOptions.AttackTargetRehueHue = config?["AttackTargetRehueHue"]?.ToObject<int>() ?? 38;
             CurrentOptions.DefaultMacroQuietMode = config?["DefaultMacroQuietMode"]?.ToObject<bool>() ?? false;
             CurrentOptions.GetFriendEnemyUsesIgnoreList =
                 config?["GetFriendEnemyUsesIgnoreList"]?.ToObject<bool>() ?? false;
@@ -309,6 +325,26 @@ namespace ClassicAssist.UI.ViewModels
             MsgCommands.HeadMsg( "Enemy", "self", CurrentOptions.HueNotorietyEnemy );
             MsgCommands.HeadMsg( "Murderer", "self", CurrentOptions.HueNotorietyMurderer );
             MsgCommands.HeadMsg( "Invulnerable", "self", CurrentOptions.HueNotorietyInvulnerable );
+        }
+
+        private void SelectAttackTargetHue( object obj )
+        {
+            if ( !HuePickerWindow.GetHue( out int selectedHue ) )
+            {
+                return;
+            }
+
+            CurrentOptions.AttackTargetRehueHue = selectedHue;
+        }
+
+        private static void TargetNextPvpEnemy( object obj )
+        {
+            TargetManager.GetInstance().GetEnemy(
+                TargetNotoriety.Innocent | TargetNotoriety.Gray | TargetNotoriety.Criminal | TargetNotoriety.Enemy |
+                TargetNotoriety.Murderer,
+                TargetBodyType.Humanoid,
+                TargetDistance.Next,
+                TargetFriendType.None );
         }
 
         // Replay CurrentOptions changes onto Options.CurrentOptions

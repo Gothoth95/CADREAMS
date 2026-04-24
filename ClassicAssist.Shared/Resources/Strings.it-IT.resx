@@ -748,6 +748,12 @@
   <data name="Target Last" xml:space="preserve">
     <value>Target Last</value>
   </data>
+  <data name="Target Next PvP Enemy" xml:space="preserve">
+    <value>Target prossimo nemico PvP</value>
+  </data>
+  <data name="Target Next PvP Enemy Hint" xml:space="preserve">
+    <value>Cicla i nemici PvP vicini (solo umanoidi, esclude invulnerabili).</value>
+  </data>
   <data name="Target new friend..." xml:space="preserve">
     <value>Target nuovo Amico...</value>
   </data>
@@ -987,6 +993,15 @@
   </data>
   <data name="Enemy target message:" xml:space="preserve">
     <value>Notifica sul Enemy Target:</value>
+  </data>
+  <data name="Enemy target self message:" xml:space="preserve">
+    <value>Notifica su di te (Enemy Target):</value>
+  </data>
+  <data name="Target message format hint" xml:space="preserve">
+    <value>Usa {0} per il nome target. Esempio: [Target] {0}</value>
+  </data>
+  <data name="Attack target rehue hue:" xml:space="preserve">
+    <value>Colore rehue target in attacco:</value>
   </data>
   <data name="Macro name must be unique." xml:space="preserve">
     <value>I nomi degli Script devono essere unici.</value>

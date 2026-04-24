@@ -36,6 +36,7 @@ namespace ClassicAssist.Data
         private bool _autoAcceptPartyInvite;
         private bool _autoAcceptPartyOnlyFromFriends;
         private bool _autologin;
+        private int _attackTargetRehueHue = 38;
         private int _autologinCharacterIndex;
         private TimeSpan _autologinConnectDelay;
         private string _autologinPassword;
@@ -53,6 +54,7 @@ namespace ClassicAssist.Data
         private bool _dragDelay;
         private int _dragDelayMs;
         private string _enemyTargetMessage;
+        private string _enemyTargetSelfMessage;
         private EntityCollectionViewerOptions _entityCollectionViewerOptions = new EntityCollectionViewerOptions();
         private int _expireTargetsMs;
         private ObservableCollection<FriendEntry> _friends = new ObservableCollection<FriendEntry>();
@@ -164,6 +166,12 @@ namespace ClassicAssist.Data
             set => SetProperty( ref _autologin, value );
         }
 
+        public int AttackTargetRehueHue
+        {
+            get => _attackTargetRehueHue;
+            set => SetProperty( ref _attackTargetRehueHue, value );
+        }
+
         public int AutologinCharacterIndex
         {
             get => _autologinCharacterIndex;
@@ -265,6 +273,12 @@ namespace ClassicAssist.Data
         {
             get => _enemyTargetMessage;
             set => SetProperty( ref _enemyTargetMessage, value );
+        }
+
+        public string EnemyTargetSelfMessage
+        {
+            get => _enemyTargetSelfMessage;
+            set => SetProperty( ref _enemyTargetSelfMessage, value );
         }
 
         public int ExpireTargetsMS

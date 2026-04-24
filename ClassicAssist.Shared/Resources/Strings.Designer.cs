@@ -430,6 +430,15 @@ namespace ClassicAssist.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Attack target rehue hue:.
+        /// </summary>
+        public static string Attack_target_rehue_hue_ {
+            get {
+                return ResourceManager.GetString("Attack target rehue hue:", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attack request blocked....
         /// </summary>
         public static string Attack_request_blocked___ {
@@ -1767,6 +1776,15 @@ namespace ClassicAssist.Shared.Resources {
         public static string Enemy_target_message_ {
             get {
                 return ResourceManager.GetString("Enemy target message:", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enemy target self message:.
+        /// </summary>
+        public static string Enemy_target_self_message_ {
+            get {
+                return ResourceManager.GetString("Enemy target self message:", resourceCulture);
             }
         }
         
@@ -5328,6 +5346,33 @@ namespace ClassicAssist.Shared.Resources {
         public static string Target_Last {
             get {
                 return ResourceManager.GetString("Target Last", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use {0} for target name. Example: [Target] {0}.
+        /// </summary>
+        public static string Target_message_format_hint {
+            get {
+                return ResourceManager.GetString("Target message format hint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Target Next PvP Enemy.
+        /// </summary>
+        public static string Target_Next_PvP_Enemy {
+            get {
+                return ResourceManager.GetString("Target Next PvP Enemy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cycles nearby PvP enemies (humanoid only, excludes invulnerable)..
+        /// </summary>
+        public static string Target_Next_PvP_Enemy_Hint {
+            get {
+                return ResourceManager.GetString("Target Next PvP Enemy Hint", resourceCulture);
             }
         }
         

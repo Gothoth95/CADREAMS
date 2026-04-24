@@ -167,6 +167,21 @@ namespace ClassicAssist.Data.Hotkeys.Commands
             }
         }
 
+        [HotkeyCommand( Name = "Target Next PvP Enemy", Category = "Targeting" )]
+        public class TargetNextPvpEnemyCommand : HotkeyCommand
+        {
+            public override void Execute()
+            {
+                // PvP-oriented cycle: skips invulnerable by notoriety and avoids monster bodies.
+                TargetManager.GetInstance().GetEnemy(
+                    TargetNotoriety.Innocent | TargetNotoriety.Gray | TargetNotoriety.Criminal | TargetNotoriety.Enemy |
+                    TargetNotoriety.Murderer,
+                    TargetBodyType.Humanoid,
+                    TargetDistance.Next,
+                    TargetFriendType.None );
+            }
+        }
+
         [HotkeyCommand( Name = "Show Next Target In Queue", Category = "Targeting" )]
         public class ShowNextTargetQueue : HotkeyCommand
         {
@@ -196,6 +211,39 @@ namespace ClassicAssist.Data.Hotkeys.Commands
                         break;
                     }
                 }
+            }
+        }
+
+        [HotkeyCommand( Name = "Attack Enemy + Rehue Target", Category = "Targeting" )]
+        public class AttackEnemyRehueTarget : HotkeyCommand
+        {
+            public override void Execute()
+            {
+                int serial = Engine.Player?.EnemyTargetSerial ?? 0;
+
+                if ( serial == 0 )
+                {
+                    ActionCommands.Attack( "enemy" );
+                    serial = Engine.Player?.EnemyTargetSerial ?? 0;
+                }
+
+                if ( serial == 0 )
+                {
+                    return;
+                }
+
+                Mobile mobile = Engine.Mobiles.GetMobile( serial );
+
+                if ( mobile == null )
+                {
+                    return;
+                }
+
+                int rehue = Options.CurrentOptions.AttackTargetRehueHue;
+                Engine.RehueList.RemoveByType( RehueType.Enemies );
+                Engine.RehueList.Add( serial, rehue, RehueType.Enemies );
+                Engine.RehueList.CheckMobileIncoming( mobile, mobile.Equipment );
+                ActionCommands.Attack( serial );
             }
         }
     }

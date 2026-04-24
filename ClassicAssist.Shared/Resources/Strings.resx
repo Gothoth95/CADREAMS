@@ -745,6 +745,12 @@
   <data name="Target Last" xml:space="preserve">
     <value>Target Last</value>
   </data>
+  <data name="Target Next PvP Enemy" xml:space="preserve">
+    <value>Target Next PvP Enemy</value>
+  </data>
+  <data name="Target Next PvP Enemy Hint" xml:space="preserve">
+    <value>Cycles nearby PvP enemies (humanoid only, excludes invulnerable).</value>
+  </data>
   <data name="Target new friend..." xml:space="preserve">
     <value>Target new friend...</value>
   </data>
@@ -984,6 +990,15 @@
   </data>
   <data name="Enemy target message:" xml:space="preserve">
     <value>Enemy target message:</value>
+  </data>
+  <data name="Enemy target self message:" xml:space="preserve">
+    <value>Enemy target self message:</value>
+  </data>
+  <data name="Target message format hint" xml:space="preserve">
+    <value>Use {0} for target name. Example: [Target] {0}</value>
+  </data>
+  <data name="Attack target rehue hue:" xml:space="preserve">
+    <value>Attack target rehue hue:</value>
   </data>
   <data name="Macro name must be unique." xml:space="preserve">
     <value>Macro name must be unique.</value>
