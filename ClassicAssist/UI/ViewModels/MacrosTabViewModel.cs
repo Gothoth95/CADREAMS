@@ -141,6 +141,21 @@ namespace ClassicAssist.UI.ViewModels
             } );
         }
 
+        public bool MacroOneScriptOnly
+        {
+            get => Options.CurrentOptions.MacroOneScriptOnly;
+            set
+            {
+                if ( Options.CurrentOptions.MacroOneScriptOnly == value )
+                {
+                    return;
+                }
+
+                Options.CurrentOptions.MacroOneScriptOnly = value;
+                OnPropertyChanged();
+            }
+        }
+
         public int CaretPosition
         {
             get => _caretPosition;
@@ -350,6 +365,7 @@ namespace ClassicAssist.UI.ViewModels
             }
 
             macros.Add( "LeftColumnWidth", LeftColumnWidth );
+            macros.Add( "MacroOneScriptOnly", Options.CurrentOptions.MacroOneScriptOnly );
             macros.Add( "Selected", SelectedItem?.Name );
             macros.Add( "Groups", groupArray );
             macros.Add( "Macros", macroArray );
@@ -399,6 +415,8 @@ namespace ClassicAssist.UI.ViewModels
 #if !DEVELOP
             LeftColumnWidth = config?["LeftColumnWidth"]?.ToObject<double>() ?? 200;
 #endif
+
+            options.MacroOneScriptOnly = config?["MacroOneScriptOnly"]?.ToObject<bool>() ?? false;
 
             if ( config?["Groups"] != null )
             {
@@ -530,6 +548,7 @@ namespace ClassicAssist.UI.ViewModels
             }
 
             SelectedItem = selected;
+            OnPropertyChanged( nameof( MacroOneScriptOnly ) );
         }
 
         private static async Task OpenExternal( object arg )

@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright (C) 2025 Reetus
 // 
@@ -17,11 +17,9 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using ClassicAssist.Data.Macros;
 
 namespace ClassicAssist.UI.Views
 {
@@ -54,19 +52,6 @@ namespace ClassicAssist.UI.Views
             MouseWheelEventArgs eventArg = new MouseWheelEventArgs( e.MouseDevice, e.Timestamp, e.Delta ) { RoutedEvent = MouseWheelEvent, Source = control };
             UIElement parent = control.Parent as UIElement;
             parent?.RaiseEvent( eventArg );
-        }
-
-        internal class SameNameComparer : IEqualityComparer<PythonCompletionData>
-        {
-            public bool Equals( PythonCompletionData x, PythonCompletionData y )
-            {
-                return y != null && x != null && x.Name.Equals( y.Name );
-            }
-
-            public int GetHashCode( PythonCompletionData obj )
-            {
-                return obj.Name.GetHashCode();
-            }
         }
     }
 }

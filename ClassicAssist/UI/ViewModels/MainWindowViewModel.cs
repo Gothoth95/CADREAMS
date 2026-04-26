@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Assistant;
@@ -22,10 +22,13 @@ namespace ClassicAssist.UI.ViewModels
 
         public MainWindowViewModel()
         {
+            OptionsTab = new OptionsTabViewModel();
             Engine.Dispatcher = Dispatcher.CurrentDispatcher;
             Engine.UpdateWindowTitleEvent += OnUpdateWindowTitleEvent;
             Engine.ClientClosing += OnClientClosing;
         }
+
+        public OptionsTabViewModel OptionsTab { get; }
 
         public ICommand DebugCommand =>
             _debugCommand ?? ( _debugCommand = new RelayCommand( ShowDebugWindow, o => true ) );

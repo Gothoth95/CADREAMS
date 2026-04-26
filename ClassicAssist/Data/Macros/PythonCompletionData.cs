@@ -1,4 +1,6 @@
-﻿using System;
+using System;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using ClassicAssist.Resources;
 using ICSharpCode.AvalonEdit.CodeCompletion;
@@ -17,6 +19,23 @@ namespace ClassicAssist.Data.Macros
             Text = insertText;
 
             Example = MacroCommandHelp.ResourceManager.GetString( $"{name.ToUpper()}_COMMAND_EXAMPLE" );
+
+            // Default completion UI binds Content; keep a concrete TextBlock so rows stay visible without popup-specific styles.
+            var row = new TextBlock
+            {
+                Text = fullName,
+                FontFamily = new FontFamily( "Consolas" ),
+                FontSize = 12,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                TextWrapping = TextWrapping.NoWrap,
+                Foreground = new SolidColorBrush( Color.FromRgb( 0xF1, 0xF5, 0xF9 ) )
+            };
+            if ( description != null )
+            {
+                row.ToolTip = description;
+            }
+
+            Content = row;
         }
 
         public string Example { get; set; }

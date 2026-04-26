@@ -1,4 +1,4 @@
-﻿using Assistant;
+using Assistant;
 using ClassicAssist.Data.Macros.Commands;
 using ClassicAssist.Data.Targeting;
 using ClassicAssist.Shared.Resources;
@@ -174,11 +174,57 @@ namespace ClassicAssist.Data.Hotkeys.Commands
             {
                 // PvP-oriented cycle: skips invulnerable by notoriety and avoids monster bodies.
                 TargetManager.GetInstance().GetEnemy(
-                    TargetNotoriety.Innocent | TargetNotoriety.Gray | TargetNotoriety.Criminal | TargetNotoriety.Enemy |
-                    TargetNotoriety.Murderer,
-                    TargetBodyType.Humanoid,
+                    BuildTargetNextPvpNotorietyFlags(),
+                    TargetBodyType.Both,
                     TargetDistance.Next,
                     TargetFriendType.None );
+            }
+
+            private static TargetNotoriety BuildTargetNextPvpNotorietyFlags()
+            {
+                TargetNotoriety flags = TargetNotoriety.None;
+
+                if ( Options.CurrentOptions.TargetNextPvpIncludeInnocent )
+                {
+                    flags |= TargetNotoriety.Innocent;
+                }
+
+                if ( Options.CurrentOptions.TargetNextPvpIncludeGray )
+                {
+                    flags |= TargetNotoriety.Gray;
+                }
+
+                if ( Options.CurrentOptions.TargetNextPvpIncludeCriminal )
+                {
+                    flags |= TargetNotoriety.Criminal;
+                }
+
+                if ( Options.CurrentOptions.TargetNextPvpIncludeEnemy )
+                {
+                    flags |= TargetNotoriety.Enemy;
+                }
+
+                if ( Options.CurrentOptions.TargetNextPvpIncludeMurderer )
+                {
+                    flags |= TargetNotoriety.Murderer;
+                }
+
+                if ( flags == TargetNotoriety.None )
+                {
+                    flags = TargetNotoriety.Innocent | TargetNotoriety.Gray | TargetNotoriety.Criminal |
+                            TargetNotoriety.Enemy | TargetNotoriety.Murderer;
+                }
+
+                return flags;
+            }
+        }
+
+        [HotkeyCommand( Name = "Target Next Friendly", Category = "Targeting" )]
+        public class TargetNextFriendlyCommand : HotkeyCommand
+        {
+            public override void Execute()
+            {
+                TargetManager.GetInstance().GetFriendlyNext( TargetBodyType.Both );
             }
         }
 
@@ -239,11 +285,25 @@ namespace ClassicAssist.Data.Hotkeys.Commands
                     return;
                 }
 
-                int rehue = Options.CurrentOptions.AttackTargetRehueHue;
-                Engine.RehueList.RemoveByType( RehueType.Enemies );
-                Engine.RehueList.Add( serial, rehue, RehueType.Enemies );
-                Engine.RehueList.CheckMobileIncoming( mobile, mobile.Equipment );
+                // Perform the attack first, then force the custom rehue so it wins visually.
                 ActionCommands.Attack( serial );
+
+                int rehue = Options.CurrentOptions.AttackTargetRehueHue;
+                Engine.RehueList.RemoveByType( RehueType.Enemies, true );
+                Engine.RehueList.Add( serial, rehue, RehueType.Enemies );
+
+                // Force immediate visual refresh in all common packet shapes.
+                Engine.RehueList.CheckMobileIncoming( mobile, mobile.Equipment );
+                Engine.RehueList.CheckMobileUpdate( mobile );
+                Engine.RehueList.CheckMobileMoving( mobile );
+
+                string name = mobile.Name?.Trim() ?? "Unknown";
+                MsgCommands.HeadMsg( $"[Attack] {name}", serial, rehue );
+
+                if ( Engine.Player != null )
+                {
+                    MsgCommands.HeadMsg( $"[Attack] {name}", Engine.Player.Serial, rehue );
+                }
             }
         }
     }

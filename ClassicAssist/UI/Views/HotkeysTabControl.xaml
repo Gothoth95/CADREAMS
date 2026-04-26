@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ClassicAssist.UI.Views.HotkeysTabControl"
+<UserControl x:Class="ClassicAssist.UI.Views.HotkeysTabControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -97,7 +97,6 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <sharedControls:FilterControl Grid.Row="0" FilterText="{Binding FilterText}" Margin="5,10,5,0" />
             <ListView Grid.Row="1" ItemsSource="{Binding Source={StaticResource src}}" Margin="5"
@@ -149,7 +148,7 @@
                     </GroupStyle>
                 </ListView.GroupStyle>
             </ListView>
-            <GroupBox Grid.Row="2" Header="Tastiera Virtuale Bind" Margin="5,0,5,5">
+            <GroupBox Grid.Row="2" Header="Input virtuale (Tastiera + Mouse)" Margin="5,0,5,5">
                 <StackPanel Margin="0,2,0,0">
                     <TabControl Style="{StaticResource VirtualKeyboardHeaderTabControl}"
                                 SelectedIndex="{Binding VirtualKeyboardTabIndex}">
@@ -158,7 +157,7 @@
                         <TabItem Header="{x:Static resources:Strings.VK_Tab_AltGr}" />
                     </TabControl>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                                  MaxHeight="320" Margin="0,4,0,0">
+                                  MaxHeight="250" Margin="0,4,0,0">
                         <ItemsControl ItemsSource="{Binding VirtualKeyboardKeys}">
                             <ItemsControl.ItemContainerStyle>
                                 <StaticResource ResourceKey="VirtualKeyboardItemStyle" />
@@ -167,40 +166,40 @@
                                 <ItemsPanelTemplate>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
-                                            <ColumnDefinition Width="44" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
+                                            <ColumnDefinition Width="40" />
                                         </Grid.ColumnDefinitions>
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="36" />
-                                            <RowDefinition Height="36" />
-                                            <RowDefinition Height="36" />
-                                            <RowDefinition Height="36" />
-                                            <RowDefinition Height="36" />
-                                            <RowDefinition Height="36" />
-                                            <RowDefinition Height="36" />
+                                            <RowDefinition Height="32" />
+                                            <RowDefinition Height="32" />
+                                            <RowDefinition Height="32" />
+                                            <RowDefinition Height="32" />
+                                            <RowDefinition Height="32" />
+                                            <RowDefinition Height="32" />
+                                            <RowDefinition Height="32" />
                                         </Grid.RowDefinitions>
                                     </Grid>
                                 </ItemsPanelTemplate>
@@ -208,6 +207,11 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Style="{StaticResource VirtualKeyBorderStyle}" ToolTip="{Binding TooltipText}">
+                                        <Border.InputBindings>
+                                            <MouseBinding MouseAction="LeftClick"
+                                                          Command="{Binding DataContext.AssignVirtualKeyboardHotkeyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}" />
+                                        </Border.InputBindings>
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="2,0">
                                             <TextBlock Text="{Binding MainDisplay}"
                                                        TextAlignment="Center"
@@ -228,46 +232,51 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
+
+                    <Border Height="1" Margin="0,10,0,8" Background="{DynamicResource ThemeBorderBrush}" />
+                    <TextBlock Text="Mouse Virtuale Bind"
+                               Foreground="{DynamicResource ThemeForegroundBrush}"
+                               Margin="2,0,0,6"
+                               FontWeight="SemiBold" />
+                    <ItemsControl ItemsSource="{Binding MouseButtons}">
+                        <ItemsControl.ItemContainerStyle>
+                            <StaticResource ResourceKey="VirtualMouseItemStyle" />
+                        </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="48" />
+                                        <ColumnDefinition Width="48" />
+                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="48" />
+                                        <ColumnDefinition Width="48" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="26" />
+                                        <RowDefinition Height="26" />
+                                        <RowDefinition Height="26" />
+                                    </Grid.RowDefinitions>
+                                </Grid>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource VirtualKeyBorderStyle}" Height="24"
+                                        ToolTip="{Binding TooltipText}">
+                                    <TextBlock Text="{Binding DisplayText}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               TextAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"
+                                               Margin="4,0"
+                                               FontSize="10.5"
+                                               Foreground="{DynamicResource ThemeForegroundBrush}" />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
-            </GroupBox>
-            <GroupBox Grid.Row="3" Header="Mouse Virtuale Bind" Margin="5,0,5,5">
-                <ItemsControl ItemsSource="{Binding MouseButtons}">
-                    <ItemsControl.ItemContainerStyle>
-                        <StaticResource ResourceKey="VirtualMouseItemStyle" />
-                    </ItemsControl.ItemContainerStyle>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="52" />
-                                    <ColumnDefinition Width="52" />
-                                    <ColumnDefinition Width="70" />
-                                    <ColumnDefinition Width="52" />
-                                    <ColumnDefinition Width="52" />
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="30" />
-                                    <RowDefinition Height="30" />
-                                    <RowDefinition Height="30" />
-                                </Grid.RowDefinitions>
-                            </Grid>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Style="{StaticResource VirtualKeyBorderStyle}" Height="28"
-                                    ToolTip="{Binding TooltipText}">
-                                <TextBlock Text="{Binding DisplayText}"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           TextAlignment="Center"
-                                           TextTrimming="CharacterEllipsis"
-                                           Margin="6,0"
-                                           Foreground="{DynamicResource ThemeForegroundBrush}" />
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
             </GroupBox>
         </Grid>
         <GroupBox Grid.Column="1" Header="{x:Static resources:Strings.Hotkeys}" Margin="0, 10, 5, 5">

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -53,12 +53,30 @@ namespace ClassicAssist.Data
         private bool _disableHotkeysLoad;
         private bool _dragDelay;
         private int _dragDelayMs;
+        private bool _targetNextPvpIncludeCriminal = true;
+        private bool _targetNextPvpIncludeEnemy = true;
+        private bool _targetNextPvpIncludeGray = true;
+        private bool _targetNextPvpIncludeInnocent = true;
+        private bool _targetNextPvpIncludeMurderer = true;
+        private bool _targetNextFriendlyIncludeAlly = true;
+        private bool _targetNextFriendlyIncludeFriends = true;
+        private bool _pvpDpsStopAfterDuration;
+        private int _pvpDpsDurationSeconds = 600;
+        private bool _pvpDpsIncludeMelee = true;
+        private bool _pvpDpsIncludeSpell = true;
+        private bool _pvpDpsIncludePet = true;
+        private bool _pvpDpsIncludeSelfDamageTaken = true;
+        private string _targetNextInnocentGuardWarningMessage = "GUARD ZONE";
+        private int _targetNextInnocentGuardWarningHue = 33;
         private string _enemyTargetMessage;
         private string _enemyTargetSelfMessage;
         private EntityCollectionViewerOptions _entityCollectionViewerOptions = new EntityCollectionViewerOptions();
         private int _expireTargetsMs;
         private ObservableCollection<FriendEntry> _friends = new ObservableCollection<FriendEntry>();
         private string _friendTargetMessage;
+        private string _friendTargetSelfMessage = "";
+        private int _friendTargetMessageHue = 34;
+        private int _friendTargetSelfMessageHue = 34;
         private bool _getFriendEnemyUsesIgnoreList;
         private string _hash;
         private bool _hotkeysStatusGump;
@@ -105,6 +123,7 @@ namespace ClassicAssist.Data
         private int _slowHandlerThreshold = 250;
         private SmartTargetOption _smartTargetOption;
         private bool _sortMacrosAlphabetical;
+        private bool _macroOneScriptOnly;
         private bool _sysTray;
         private bool _useDeathScreenWhilstHidden;
         private bool _useExperimentalFizzleDetection;
@@ -275,6 +294,96 @@ namespace ClassicAssist.Data
             set => SetProperty( ref _enemyTargetMessage, value );
         }
 
+        public bool TargetNextPvpIncludeCriminal
+        {
+            get => _targetNextPvpIncludeCriminal;
+            set => SetProperty( ref _targetNextPvpIncludeCriminal, value );
+        }
+
+        public bool TargetNextPvpIncludeEnemy
+        {
+            get => _targetNextPvpIncludeEnemy;
+            set => SetProperty( ref _targetNextPvpIncludeEnemy, value );
+        }
+
+        public bool TargetNextPvpIncludeGray
+        {
+            get => _targetNextPvpIncludeGray;
+            set => SetProperty( ref _targetNextPvpIncludeGray, value );
+        }
+
+        public bool TargetNextPvpIncludeInnocent
+        {
+            get => _targetNextPvpIncludeInnocent;
+            set => SetProperty( ref _targetNextPvpIncludeInnocent, value );
+        }
+
+        public bool TargetNextPvpIncludeMurderer
+        {
+            get => _targetNextPvpIncludeMurderer;
+            set => SetProperty( ref _targetNextPvpIncludeMurderer, value );
+        }
+
+        public bool TargetNextFriendlyIncludeAlly
+        {
+            get => _targetNextFriendlyIncludeAlly;
+            set => SetProperty( ref _targetNextFriendlyIncludeAlly, value );
+        }
+
+        public bool TargetNextFriendlyIncludeFriends
+        {
+            get => _targetNextFriendlyIncludeFriends;
+            set => SetProperty( ref _targetNextFriendlyIncludeFriends, value );
+        }
+
+        public bool PvpDpsStopAfterDuration
+        {
+            get => _pvpDpsStopAfterDuration;
+            set => SetProperty( ref _pvpDpsStopAfterDuration, value );
+        }
+
+        public int PvpDpsDurationSeconds
+        {
+            get => _pvpDpsDurationSeconds;
+            set => SetProperty( ref _pvpDpsDurationSeconds, value );
+        }
+
+        public bool PvpDpsIncludeMelee
+        {
+            get => _pvpDpsIncludeMelee;
+            set => SetProperty( ref _pvpDpsIncludeMelee, value );
+        }
+
+        public bool PvpDpsIncludeSpell
+        {
+            get => _pvpDpsIncludeSpell;
+            set => SetProperty( ref _pvpDpsIncludeSpell, value );
+        }
+
+        public bool PvpDpsIncludePet
+        {
+            get => _pvpDpsIncludePet;
+            set => SetProperty( ref _pvpDpsIncludePet, value );
+        }
+
+        public bool PvpDpsIncludeSelfDamageTaken
+        {
+            get => _pvpDpsIncludeSelfDamageTaken;
+            set => SetProperty( ref _pvpDpsIncludeSelfDamageTaken, value );
+        }
+
+        public string TargetNextInnocentGuardWarningMessage
+        {
+            get => _targetNextInnocentGuardWarningMessage;
+            set => SetProperty( ref _targetNextInnocentGuardWarningMessage, value );
+        }
+
+        public int TargetNextInnocentGuardWarningHue
+        {
+            get => _targetNextInnocentGuardWarningHue;
+            set => SetProperty( ref _targetNextInnocentGuardWarningHue, value );
+        }
+
         public string EnemyTargetSelfMessage
         {
             get => _enemyTargetSelfMessage;
@@ -297,6 +406,24 @@ namespace ClassicAssist.Data
         {
             get => _friendTargetMessage;
             set => SetProperty( ref _friendTargetMessage, value );
+        }
+
+        public string FriendTargetSelfMessage
+        {
+            get => _friendTargetSelfMessage;
+            set => SetProperty( ref _friendTargetSelfMessage, value );
+        }
+
+        public int FriendTargetMessageHue
+        {
+            get => _friendTargetMessageHue;
+            set => SetProperty( ref _friendTargetMessageHue, value );
+        }
+
+        public int FriendTargetSelfMessageHue
+        {
+            get => _friendTargetSelfMessageHue;
+            set => SetProperty( ref _friendTargetSelfMessageHue, value );
         }
 
         public bool GetFriendEnemyUsesIgnoreList
@@ -628,6 +755,12 @@ namespace ClassicAssist.Data
             set => SetProperty( ref _sortMacrosAlphabetical, value );
         }
 
+        public bool MacroOneScriptOnly
+        {
+            get => _macroOneScriptOnly;
+            set => SetProperty( ref _macroOneScriptOnly, value );
+        }
+
         public bool SysTray
         {
             get => _sysTray;
@@ -668,7 +801,10 @@ namespace ClassicAssist.Data
 
                 JObject obj = new JObject
                 {
-                    { "Name", options.Name }, { "SelectedTabIndex", options.SelectedTabIndex }, { "SelectedTabIndexAgents", options.SelectedTabIndexAgents }
+                    { "Name", options.Name },
+                    { "SelectedTabIndex", options.SelectedTabIndex },
+                    { "SelectedTabIndexAgents", options.SelectedTabIndexAgents },
+                    { "MainWindowTabLayoutVersion", 1 }
                 };
 
                 foreach ( BaseViewModel instance in instances )
@@ -795,7 +931,14 @@ namespace ClassicAssist.Data
                     }
 
                     options.Name = Path.GetFileName( optionsFile );
+                    int mainWindowTabLayoutVersion = json["MainWindowTabLayoutVersion"]?.ToObject<int>() ?? 0;
                     options.SelectedTabIndex = json["SelectedTabIndex"]?.ToObject<int>() ?? 0;
+
+                    if ( mainWindowTabLayoutVersion < 1 && options.SelectedTabIndex >= 8 )
+                    {
+                        options.SelectedTabIndex++;
+                    }
+
                     options.SelectedTabIndexAgents = json["SelectedTabIndexAgents"]?.ToObject<int>() ?? 0;
                     options.Hash = json["Hash"]?.ToObject<string>() ?? string.Empty;
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -28,6 +28,7 @@ namespace ClassicAssist.UI.ViewModels
         private ICommand _clearHotkeyCommand;
         private ICommand _configureHotkeyCommand;
         private ICommand _createMacroButtonCommand;
+        private ICommand _assignVirtualKeyboardHotkeyCommand;
         private ICommand _executeCommand;
         private ObservableCollection<HotkeyCommand> _filterItems;
         private string _filterText;
@@ -64,6 +65,10 @@ namespace ClassicAssist.UI.ViewModels
         public ICommand CreateMacroButtonCommand =>
             _createMacroButtonCommand ?? ( _createMacroButtonCommand =
                 new RelayCommand( CreateMacroButton, o => SelectedItem != null ) );
+
+        public ICommand AssignVirtualKeyboardHotkeyCommand =>
+            _assignVirtualKeyboardHotkeyCommand ?? ( _assignVirtualKeyboardHotkeyCommand =
+                new RelayCommand( AssignVirtualKeyboardHotkey, o => SelectedItem != null && o is HotkeyKeyboardKeyViewModel ) );
 
         public ICommand ExecuteCommand =>
             _executeCommand ?? ( _executeCommand = new RelayCommand( ExecuteHotkey, o => SelectedItem != null ) );
@@ -1062,6 +1067,38 @@ namespace ClassicAssist.UI.ViewModels
             }
 
             return entry.Name;
+        }
+
+        private void AssignVirtualKeyboardHotkey( object obj )
+        {
+            if ( !( obj is HotkeyKeyboardKeyViewModel keyVm ) || !( SelectedItem is HotkeyEntry selected ) )
+            {
+                return;
+            }
+
+            if ( selected.IsCategory || selected.Hotkey == null )
+            {
+                return;
+            }
+
+            SDLKeys.ModKey modifier = SDLKeys.ModKey.None;
+
+            if ( VirtualKeyboardTabIndex == 1 )
+            {
+                modifier = SDLKeys.ModKey.LeftShift;
+            }
+            else if ( VirtualKeyboardTabIndex == 2 )
+            {
+                // Alt/AltGr view: bind as RightAlt to match the dedicated virtual tab intent.
+                modifier = SDLKeys.ModKey.RightAlt;
+            }
+
+            Hotkey = new ShortcutKeys
+            {
+                Key = keyVm.Key,
+                Modifier = modifier,
+                Mouse = MouseOptions.None
+            };
         }
     }
 }

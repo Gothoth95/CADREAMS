@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Assistant;
 using ClassicAssist.Data.Macros;
 using ClassicAssist.Data.Macros.Commands;
+using ClassicAssist.Data.Regions;
 using ClassicAssist.Shared.Resources;
 using ClassicAssist.UO;
 using ClassicAssist.UO.Data;
@@ -20,9 +21,68 @@ namespace ClassicAssist.Data.Targeting
         public delegate void dTargetChanged( int newSerial, int oldSerial );
 
         private const int MAX_DISTANCE = 18;
+        private const int DefaultTargetHeadHue = 34;
+
+        /// <summary>Packet body ids are unsigned 16-bit; normalize for comparisons against Bodies.json.</summary>
+        private static int NormalizeMobileBodyId( int bodyId ) => bodyId & 0xFFFF;
+
+        private static int TargetHeadMessageHue( Mobile mobile )
+        {
+#if CAPVP
+            return DefaultTargetHeadHue;
+#else
+            return mobile != null ? Options.CurrentOptions.GetNotorietyHue( mobile.Notoriety ) : DefaultTargetHeadHue;
+#endif
+        }
         private static TargetManager _instance;
         private static readonly object _lock = new object();
         private static readonly List<Mobile> _ignoreList = new List<Mobile>();
+
+        /// <summary>
+        ///     Default creature names for ambient spawns that share Animal Form / Necro / Mysticism bodies listed in
+        ///     Bodies.json. Players keep their character name, so they are not filtered. Not shown in UI.
+        /// </summary>
+        private static readonly HashSet<string> TransformationSpawnNpcNames =
+            new HashSet<string>( StringComparer.OrdinalIgnoreCase )
+            {
+                // Necro / forms
+                "a horrific beast",
+                "a wraith",
+                "a lich",
+                "a vampire",
+                "a reaper",
+                // Ostard / llama / wolf (Animal Form bodies)
+                "a desert ostard",
+                "a forest ostard",
+                "a frenzied ostard",
+                "a llama",
+                "a grey wolf",
+                "a gray wolf",
+                "a wolf",
+                "a timber wolf",
+                "a dire wolf",
+                "a hell hound",
+                // Other transformation graphics in Bodies.json
+                "a goblin",
+                "a savage",
+                "a savage warrior",
+                "a savage shaman",
+                "a tribal chief",
+                // Italian (common freeshard / client strings)
+                "un lama",
+                "un lupo",
+                "un lupo grigio",
+                "un ostard",
+                "un ostard del deserto",
+                "un ostard della foresta",
+                "un ostard frenetico",
+                "un goblin",
+                "un lich",
+                "un vampiro",
+                "un segugio infernale"
+            };
+
+        private readonly HashSet<int> _transformationBodyGraphics;
 
         private TargetManager()
         {
@@ -31,9 +91,37 @@ namespace ClassicAssist.Data.Targeting
             BodyData = JsonConvert
                 .DeserializeObject<TargetBodyData[]>( File.ReadAllText( Path.Combine( dataPath, "Bodies.json" ) ) )
                 .ToList();
+
+            _transformationBodyGraphics = new HashSet<int>(
+                BodyData.Where( bd => bd.BodyType == TargetBodyType.Transformation ).Select( bd => bd.Graphic ) );
         }
 
         public List<TargetBodyData> BodyData { get; set; }
+
+        /// <summary>
+        ///     Skips world mobs that use the same body id as PvP transformation entries but still have a default NPC name.
+        /// </summary>
+        private bool IsAmbientSpawnNpcForTransformationBody( Mobile m )
+        {
+            if ( m == null )
+            {
+                return false;
+            }
+
+            if ( !_transformationBodyGraphics.Contains( NormalizeMobileBodyId( m.ID ) ) )
+            {
+                return false;
+            }
+
+            string name = m.Name?.Trim();
+
+            if ( string.IsNullOrEmpty( name ) )
+            {
+                return false;
+            }
+
+            return TransformationSpawnNpcNames.Contains( name );
+        }
 
         public static event dTargetChanged EnemyChangedEvent;
         public static event dTargetChanged FriendChangedEvent;
@@ -46,12 +134,35 @@ namespace ClassicAssist.Data.Targeting
                 return;
             }
 
+            int previousEnemySerial = Engine.Player?.EnemyTargetSerial ?? 0;
+
             Mobile mobile = m as Mobile ?? Engine.Mobiles.GetMobile( m.Serial );
-            int hue = mobile != null ? Options.CurrentOptions.GetNotorietyHue( mobile.Notoriety ) : 34;
+            int hue = TargetHeadMessageHue( mobile );
             string targetName = m.Name?.Trim() ?? "Unknown";
 
             if ( !MacroManager.QuietMode )
             {
+                if ( mobile != null && mobile.Notoriety == Notoriety.Innocent )
+                {
+                    Region guardRegion = mobile.GetRegion();
+
+                    if ( guardRegion != null && guardRegion.Attributes.HasFlag( RegionAttributes.Guarded ) )
+                    {
+                        string warn = Options.CurrentOptions.TargetNextInnocentGuardWarningMessage;
+
+                        if ( !string.IsNullOrWhiteSpace( warn ) )
+                        {
+                            int warnHue = Options.CurrentOptions.TargetNextInnocentGuardWarningHue;
+                            MsgCommands.HeadMsg( warn, m.Serial, warnHue );
+
+                            if ( Engine.Player != null )
+                            {
+                                MsgCommands.HeadMsg( warn, Engine.Player.Serial, warnHue );
+                            }
+                        }
+                    }
+                }
+
                 string targetMessage = BuildTargetMessage( Options.CurrentOptions.EnemyTargetMessage, targetName );
                 string selfMessage = BuildTargetMessage( Options.CurrentOptions.EnemyTargetSelfMessage, targetName );
 
@@ -68,6 +179,12 @@ namespace ClassicAssist.Data.Targeting
 
             if ( m.Serial != Engine.Player.EnemyTargetSerial )
             {
+                if ( previousEnemySerial != 0 && previousEnemySerial != m.Serial )
+                {
+                    // When cycling target, remove old attack rehue and force visual reset.
+                    Engine.RehueList.RemoveByType( RehueType.Enemies, true );
+                }
+
                 EnemyChangedEvent?.Invoke( m.Serial, Engine.Player.EnemyTargetSerial );
                 LastTargetChangedEvent?.Invoke( m.Serial, Engine.Player.LastTargetSerial );
             }
@@ -85,16 +202,32 @@ namespace ClassicAssist.Data.Targeting
             }
 
             Mobile mobile = m as Mobile ?? Engine.Mobiles.GetMobile( m.Serial );
-            int hue = mobile != null ? Options.CurrentOptions.GetNotorietyHue( mobile.Notoriety ) : 34;
+            int hueOnFriend = Options.CurrentOptions.FriendTargetMessageHue;
+            int hueOnSelf = Options.CurrentOptions.FriendTargetSelfMessageHue;
+
+            string targetName = m.Name?.Trim() ?? "Unknown";
 
             if ( !MacroManager.QuietMode )
             {
-                MsgCommands.HeadMsg( Options.CurrentOptions.FriendTargetMessage, m.Serial, hue );
+                string onFriend =
+                    BuildMobileTargetMessage( Options.CurrentOptions.FriendTargetMessage, mobile, targetName );
+                string onSelf =
+                    BuildMobileTargetMessage( Options.CurrentOptions.FriendTargetSelfMessage, mobile, targetName );
+
+                if ( !string.IsNullOrWhiteSpace( onFriend ) )
+                {
+                    MsgCommands.HeadMsg( onFriend, m.Serial, hueOnFriend );
+                }
+
+                if ( !string.IsNullOrWhiteSpace( onSelf ) && Engine.Player != null )
+                {
+                    MsgCommands.HeadMsg( onSelf, Engine.Player.Serial, hueOnSelf );
+                }
             }
 
             if ( m.Serial != Engine.Player.FriendTargetSerial )
             {
-                MsgCommands.HeadMsg( $"Target: {m.Name?.Trim() ?? "Unknown"}", m.Serial, hue );
+                MsgCommands.HeadMsg( $"Target: {targetName}", m.Serial, hueOnFriend );
                 FriendChangedEvent?.Invoke( m.Serial, Engine.Player.FriendTargetSerial );
                 LastTargetChangedEvent?.Invoke( m.Serial, Engine.Player.LastTargetSerial );
             }
@@ -107,7 +240,7 @@ namespace ClassicAssist.Data.Targeting
         public void SetLastTarget( Entity m )
         {
             Mobile mobile = UOMath.IsMobile( m.Serial ) ? ( m as Mobile ?? Engine.Mobiles.GetMobile( m.Serial ) ) : null;
-            int hue = mobile != null ? Options.CurrentOptions.GetNotorietyHue( mobile.Notoriety ) : 34;
+            int hue = TargetHeadMessageHue( mobile );
 
             if ( m.Serial != Engine.Player.LastTargetSerial )
             {
@@ -166,7 +299,9 @@ namespace ClassicAssist.Data.Targeting
             if ( friendType == TargetFriendType.Only )
             {
                 mobile = Engine.Mobiles.SelectEntities( m =>
-                        MobileCommands.InFriendList( m.Serial ) && bodyTypePredicate( m.ID ) &&
+                        MobileCommands.InFriendList( m.Serial ) &&
+                        bodyTypePredicate( NormalizeMobileBodyId( m.ID ) ) &&
+                        !IsAmbientSpawnNpcForTransformationBody( m ) &&
                         ( !Options.CurrentOptions.GetFriendEnemyUsesIgnoreList ||
                           !ObjectCommands.IgnoreList.Contains( m.Serial ) ) && m.Serial != Engine.Player?.Serial &&
                         ( maxDistance == -1 || m.Distance <= maxDistance ) ).OrderBy( m => m.Distance )
@@ -175,7 +310,9 @@ namespace ClassicAssist.Data.Targeting
             else
             {
                 mobile = Engine.Mobiles.SelectEntities( m =>
-                        notoriety.Contains( m.Notoriety ) && m.Distance < MAX_DISTANCE && bodyTypePredicate( m.ID ) &&
+                        notoriety.Contains( m.Notoriety ) && m.Distance < MAX_DISTANCE &&
+                        bodyTypePredicate( NormalizeMobileBodyId( m.ID ) ) &&
+                        !IsAmbientSpawnNpcForTransformationBody( m ) &&
                         ( friendType == TargetFriendType.Include || !MobileCommands.InFriendList( m.Serial ) ) &&
                         ( !Options.CurrentOptions.GetFriendEnemyUsesIgnoreList ||
                           !ObjectCommands.IgnoreList.Contains( m.Serial ) ) && m.Serial != Engine.Player?.Serial &&
@@ -234,7 +371,8 @@ namespace ClassicAssist.Data.Targeting
                     //Notoriety, bodyType ignored
                     mobiles = Engine.Mobiles.SelectEntities( m =>
                         m.Distance <= distance && MobileCommands.InFriendList( m.Serial ) &&
-                        bodyTypePredicate( m.ID ) && !_ignoreList.Contains( m ) &&
+                        bodyTypePredicate( NormalizeMobileBodyId( m.ID ) ) &&
+                        !IsAmbientSpawnNpcForTransformationBody( m ) && !_ignoreList.Contains( m ) &&
                         ( !Options.CurrentOptions.GetFriendEnemyUsesIgnoreList ||
                           !ObjectCommands.IgnoreList.Contains( m.Serial ) ) && m.Serial != Engine.Player?.Serial &&
                         m.Distance <= distance );
@@ -242,7 +380,9 @@ namespace ClassicAssist.Data.Targeting
                 else
                 {
                     mobiles = Engine.Mobiles.SelectEntities( m =>
-                        notoriety.Contains( m.Notoriety ) && m.Distance <= distance && bodyTypePredicate( m.ID ) &&
+                        notoriety.Contains( m.Notoriety ) && m.Distance <= distance &&
+                        bodyTypePredicate( NormalizeMobileBodyId( m.ID ) ) &&
+                        !IsAmbientSpawnNpcForTransformationBody( m ) &&
                         !_ignoreList.Contains( m ) &&
                         ( friendType == TargetFriendType.Include || !MobileCommands.InFriendList( m.Serial ) ) &&
                         ( !Options.CurrentOptions.GetFriendEnemyUsesIgnoreList ||
@@ -362,6 +502,77 @@ namespace ClassicAssist.Data.Targeting
             return true;
         }
 
+        public bool GetFriendlyNext( TargetBodyType bodyType = TargetBodyType.Both, int maxDistance = -1 )
+        {
+            if ( Engine.Player == null )
+            {
+                return false;
+            }
+
+            if ( maxDistance < 0 )
+            {
+                maxDistance = MAX_DISTANCE;
+            }
+
+            bool includeAlly = Options.CurrentOptions.TargetNextFriendlyIncludeAlly;
+            bool includeFriends = Options.CurrentOptions.TargetNextFriendlyIncludeFriends;
+
+            if ( !includeAlly && !includeFriends )
+            {
+                includeAlly = true;
+                includeFriends = true;
+            }
+
+            Func<int, bool> bodyTypePredicate;
+
+            switch ( bodyType )
+            {
+                case TargetBodyType.Any:
+                    bodyTypePredicate = i => true;
+                    break;
+                case TargetBodyType.Humanoid:
+                    bodyTypePredicate = i =>
+                        BodyData.Where( bd => bd.BodyType == TargetBodyType.Humanoid ).Select( bd => bd.Graphic )
+                            .Contains( i );
+                    break;
+                case TargetBodyType.Transformation:
+                    bodyTypePredicate = i =>
+                        BodyData.Where( bd => bd.BodyType == TargetBodyType.Transformation )
+                            .Select( bd => bd.Graphic ).Contains( i );
+                    break;
+                case TargetBodyType.Both:
+                    bodyTypePredicate = i =>
+                        BodyData.Where( bd =>
+                                bd.BodyType == TargetBodyType.Humanoid || bd.BodyType == TargetBodyType.Transformation )
+                            .Select( bd => bd.Graphic ).Contains( i );
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException( nameof( bodyType ), bodyType, null );
+            }
+
+            Mobile[] candidates = Engine.Mobiles.SelectEntities( m =>
+                m.Distance <= maxDistance && bodyTypePredicate( NormalizeMobileBodyId( m.ID ) ) &&
+                !IsAmbientSpawnNpcForTransformationBody( m ) &&
+                m.Serial != Engine.Player.Serial &&
+                ( !Options.CurrentOptions.GetFriendEnemyUsesIgnoreList ||
+                  !ObjectCommands.IgnoreList.Contains( m.Serial ) ) &&
+                ( ( includeAlly && m.Notoriety == Notoriety.Ally ) ||
+                  ( includeFriends && MobileCommands.InFriendList( m.Serial ) ) ) ).OrderBy( m => m.Distance )
+                .ByInflication( TargetInfliction.Any );
+
+            if ( candidates == null || candidates.Length == 0 )
+            {
+                return false;
+            }
+
+            int prevSerial = Engine.Player.FriendTargetSerial;
+            int idx = Array.FindIndex( candidates, c => c.Serial == prevSerial );
+            Mobile next = idx < 0 ? candidates[0] : candidates[( idx + 1 ) % candidates.Length];
+
+            SetFriend( next );
+            return true;
+        }
+
         public Mobile GetMobile( TargetNotoriety notoFlags, TargetBodyType bodyType, TargetDistance targetDistance,
             TargetFriendType friendType, TargetInfliction inflictionType, int previousSerial = 0, int maxDistance = -1 )
         {
@@ -411,6 +622,72 @@ namespace ClassicAssist.Data.Targeting
             }
 
             return m;
+        }
+
+        /// <summary>
+        ///     Head message text for a mobile target. If template contains "{" uses String.Format with:
+        ///     {0} name, {1} notoriety, {2} serial (hex), {3} distance (tiles), {4} body id (hex), {5} hits, {6} hits max,
+        ///     {7} hits percent (0–100).
+        ///     Missing mobile uses ? or defaults for slots after {0}.
+        /// </summary>
+        public static string FormatFriendTargetHeadMessage( int serial )
+        {
+            Mobile mobile = Engine.Mobiles.GetMobile( serial );
+
+            return BuildMobileTargetMessage( Options.CurrentOptions.FriendTargetMessage, mobile,
+                mobile?.Name?.Trim() ?? "Unknown" );
+        }
+
+        private static string BuildMobileTargetMessage( string template, Mobile mobile, string nameFallback )
+        {
+            if ( string.IsNullOrWhiteSpace( template ) )
+            {
+                return string.Empty;
+            }
+
+            string cleanName = string.IsNullOrWhiteSpace( nameFallback ) ? "Unknown" : nameFallback.Trim();
+
+            if ( mobile != null && !string.IsNullOrWhiteSpace( mobile.Name ) )
+            {
+                cleanName = mobile.Name.Trim();
+            }
+
+            if ( !template.Contains( "{" ) )
+            {
+                return $"{template} {cleanName}".Trim();
+            }
+
+            object noto = mobile?.Notoriety.ToString() ?? "?";
+            object serialHex = mobile != null ? $"0x{mobile.Serial:x}" : "?";
+            int distance = mobile?.Distance ?? -1;
+            object idHex = mobile != null ? $"0x{mobile.ID:x}" : "?";
+            int hits = mobile?.Hits ?? 0;
+            int hitsMax = mobile?.HitsMax ?? 0;
+            int hitsPercent = 0;
+
+            if ( mobile != null && mobile.HitsMax > 0 )
+            {
+                hitsPercent = (int) Math.Round( 100.0 * mobile.Hits / (double) mobile.HitsMax );
+
+                if ( hitsPercent < 0 )
+                {
+                    hitsPercent = 0;
+                }
+                else if ( hitsPercent > 100 )
+                {
+                    hitsPercent = 100;
+                }
+            }
+
+            try
+            {
+                return string.Format( template, cleanName, noto, serialHex, distance, idHex, hits, hitsMax,
+                    hitsPercent );
+            }
+            catch ( FormatException )
+            {
+                return BuildTargetMessage( template, cleanName );
+            }
         }
 
         private static string BuildTargetMessage( string template, string name )

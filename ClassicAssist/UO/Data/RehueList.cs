@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Assistant;
@@ -47,13 +47,23 @@ namespace ClassicAssist.UO.Data
             return _rehueList.TryGetValue( serial, out entry );
         }
 
-        public void RemoveByType( RehueType type )
+        public void RemoveByType( RehueType type, bool refreshMobiles = false )
         {
-            IEnumerable<int> keys = _rehueList.Where( kvp => kvp.Value.Type == type ).Select( kvp => kvp.Key );
+            RehueEntry[] entries = _rehueList.Where( kvp => kvp.Value.Type == type ).Select( kvp => kvp.Value ).ToArray();
 
-            foreach ( int key in keys )
+            foreach ( RehueEntry entry in entries )
             {
-                Remove( key );
+                Remove( entry.Serial );
+            }
+
+            if ( !refreshMobiles )
+            {
+                return;
+            }
+
+            foreach ( RehueEntry entry in entries )
+            {
+                RefreshMobile( entry.Serial );
             }
         }
 
@@ -141,6 +151,21 @@ namespace ClassicAssist.UO.Data
 
             Engine.SendPacketToClient( new MobileMoving( mobile, entry.Hue ) );
             return true;
+        }
+
+        private static void RefreshMobile( int serial )
+        {
+            Mobile mobile = Engine.Mobiles.GetMobile( serial );
+
+            if ( mobile == null )
+            {
+                return;
+            }
+
+            Engine.SendPacketToClient( new MobileIncoming( mobile, mobile.Equipment ) );
+            Engine.SendPacketToClient( new MobileUpdate( mobile.Serial, mobile.ID, mobile.Hue, mobile.Status, mobile.X,
+                mobile.Y, mobile.Z, mobile.Direction ) );
+            Engine.SendPacketToClient( new MobileMoving( mobile ) );
         }
     }
 }

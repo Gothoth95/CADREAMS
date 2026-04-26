@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <PlatformTarget>x64</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputPath>..\Output\</OutputPath>
     <UseWPF>true</UseWPF>
-    <Configurations>Debug;Release;Develop</Configurations>
+    <Configurations>Debug;Release;Develop;PVP</Configurations>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
   <ItemGroup>
@@ -238,5 +238,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|AnyCPU'">
     <DefineConstants>DEBUG</DefineConstants>
     <DefineConstants>DEBUG;DEVELOP</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='PVP|AnyCPU'">
+    <DefineConstants>$(DefineConstants);CAPVP</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
   </PropertyGroup>
 </Project>

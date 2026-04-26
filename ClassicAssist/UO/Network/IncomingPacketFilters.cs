@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -194,7 +194,7 @@ namespace ClassicAssist.UO.Network
 
             PacketReader reader = new PacketReader( packet, length, true );
             serial = reader.ReadInt32();
-            int id = reader.ReadInt16();
+            int id = reader.ReadUInt16();
             reader.ReadByte(); // BYTE 0x00;
             int hue = reader.ReadUInt16();
             int status = reader.ReadByte();
@@ -252,7 +252,7 @@ namespace ClassicAssist.UO.Network
 
             PacketReader reader = new PacketReader( packet, length, true );
             serial = reader.ReadInt32();
-            int id = reader.ReadInt16();
+            int id = reader.ReadUInt16();
             int x = reader.ReadInt16();
             int y = reader.ReadInt16();
             int z = reader.ReadSByte();
@@ -294,7 +294,7 @@ namespace ClassicAssist.UO.Network
 
             Mobile mobile = serial == Engine.Player?.Serial ? Engine.Player : Engine.GetOrCreateMobile( serial );
 
-            mobile.ID = reader.ReadInt16();
+            mobile.ID = reader.ReadUInt16();
             mobile.X = reader.ReadInt16();
             mobile.Y = reader.ReadInt16();
             mobile.Z = reader.ReadSByte();

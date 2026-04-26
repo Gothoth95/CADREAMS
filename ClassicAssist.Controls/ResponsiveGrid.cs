@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright (C) $CURRENT_YEAR$ Reetus
 //
@@ -18,10 +18,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace ClassicAssist.Controls
 {
+    [ContentProperty( "Items" )]
     public class ResponsiveGrid : Grid
     {
         private bool _loaded;

@@ -1,10 +1,9 @@
-﻿<UserControl
+<UserControl
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:resources="clr-namespace:ClassicAssist.Shared.Resources;assembly=ClassicAssist.Shared"
-    xmlns:viewModels="clr-namespace:ClassicAssist.UI.ViewModels"
     xmlns:misc1="clr-namespace:ClassicAssist.UI.Misc"
     xmlns:data="clr-namespace:ClassicAssist.Data"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
@@ -28,14 +27,8 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <UserControl.DataContext>
-        <viewModels:OptionsTabViewModel />
-    </UserControl.DataContext>
     <Grid Margin="5">
         <Grid.Resources>
-            <Style TargetType="{x:Type ScrollViewer}" BasedOn="{StaticResource {x:Type ScrollViewer}}">
-                <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-            </Style>
             <Style TargetType="{x:Type headered:HorizontalHeaderedTextBox}">
                 <Setter Property="Margin" Value="0,0,0,5" />
             </Style>
@@ -53,7 +46,6 @@
             </Style>
         </Grid.Resources>
         <controls:ResponsiveGrid MinWidth="200">
-            <controls:ResponsiveGrid.Items>
                 <GroupBox Header="{x:Static resources:Strings.General}">
                     <StackPanel Margin="5">
                         <headered:HorizontalHeaderedContentControl Header="{x:Static resources:Strings.Language}">
@@ -114,88 +106,6 @@
                         </controls:OptionedCheckBoxControl>
                     </StackPanel>
                 </GroupBox>
-                <GroupBox Header="{x:Static resources:Strings.Target}">
-                    <StackPanel Margin="5">
-                        <headered:HorizontalHeaderedComboBox Header="{x:Static resources:Strings.Smart_last_target_}"
-                                                             ItemsSource="{Binding Source={misc1:EnumBindingSource {x:Type data:SmartTargetOption}}}"
-                                                             SelectedItem="{Binding CurrentOptions.SmartTargetOption, Mode=TwoWay}" />
-                        <headered:HorizontalHeaderedTextBox
-                            Header="{x:Static resources:Strings.Last_target_message_  }"
-                            Text="{Binding CurrentOptions.LastTargetMessage}" />
-                        <headered:HorizontalHeaderedTextBox
-                            Header="{x:Static resources:Strings.Friend_target_message_}"
-                            Text="{Binding CurrentOptions.FriendTargetMessage}" />
-                        <headered:HorizontalHeaderedTextBox Header="{x:Static resources:Strings.Enemy_target_message_}"
-                                                            Text="{Binding CurrentOptions.EnemyTargetMessage}" />
-                        <headered:HorizontalHeaderedTextBox
-                            Header="{x:Static resources:Strings.Enemy_target_self_message_}"
-                            Text="{Binding CurrentOptions.EnemyTargetSelfMessage}"
-                            ToolTip="{x:Static resources:Strings.Target_message_format_hint}" />
-                        <GroupBox Header="Colori Notorieta (Target Msg)" Margin="0,0,0,5">
-                            <StackPanel Margin="5">
-                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                                    <TextBlock Text="Innocent" Width="110" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding CurrentOptions.HueNotorietyInnocent}" Width="40" VerticalAlignment="Center" />
-                                    <Button Content="Palette" Width="70" Command="{Binding SelectNotorietyHueCommand}" CommandParameter="Innocent" />
-                                </DockPanel>
-                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                                    <TextBlock Text="Ally" Width="110" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding CurrentOptions.HueNotorietyAlly}" Width="40" VerticalAlignment="Center" />
-                                    <Button Content="Palette" Width="70" Command="{Binding SelectNotorietyHueCommand}" CommandParameter="Ally" />
-                                </DockPanel>
-                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                                    <TextBlock Text="Gray/Attackable" Width="110" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding CurrentOptions.HueNotorietyAttackable}" Width="40" VerticalAlignment="Center" />
-                                    <Button Content="Palette" Width="70" Command="{Binding SelectNotorietyHueCommand}" CommandParameter="Attackable" />
-                                </DockPanel>
-                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                                    <TextBlock Text="Criminal" Width="110" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding CurrentOptions.HueNotorietyCriminal}" Width="40" VerticalAlignment="Center" />
-                                    <Button Content="Palette" Width="70" Command="{Binding SelectNotorietyHueCommand}" CommandParameter="Criminal" />
-                                </DockPanel>
-                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                                    <TextBlock Text="Enemy" Width="110" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding CurrentOptions.HueNotorietyEnemy}" Width="40" VerticalAlignment="Center" />
-                                    <Button Content="Palette" Width="70" Command="{Binding SelectNotorietyHueCommand}" CommandParameter="Enemy" />
-                                </DockPanel>
-                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                                    <TextBlock Text="Murderer" Width="110" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding CurrentOptions.HueNotorietyMurderer}" Width="40" VerticalAlignment="Center" />
-                                    <Button Content="Palette" Width="70" Command="{Binding SelectNotorietyHueCommand}" CommandParameter="Murderer" />
-                                </DockPanel>
-                                <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                                    <TextBlock Text="Invulnerable" Width="110" VerticalAlignment="Center" />
-                                    <TextBlock Text="{Binding CurrentOptions.HueNotorietyInvulnerable}" Width="40" VerticalAlignment="Center" />
-                                    <Button Content="Palette" Width="70" Command="{Binding SelectNotorietyHueCommand}" CommandParameter="Invulnerable" />
-                                </DockPanel>
-                                <Button Content="Test Colori Notorieta" HorizontalAlignment="Left" Margin="0,4,0,0"
-                                        Command="{Binding TestNotorietyHueCommand}" />
-                            </StackPanel>
-                        </GroupBox>
-                        <controls:OptionedCheckBoxControl IsChecked="{Binding CurrentOptions.RangeCheckLastTarget}"
-                                                          Content="{x:Static resources:Strings.Range_check_last_target}">
-                            <controls:OptionedCheckBoxControl.ChildContent>
-                                <TextBox Margin="5,0,0,0" Width="40"
-                                         Text="{Binding CurrentOptions.RangeCheckLastTargetAmount}" />
-                            </controls:OptionedCheckBoxControl.ChildContent>
-                        </controls:OptionedCheckBoxControl>
-                        <CheckBox IsChecked="{Binding CurrentOptions.PreventTargetingInnocentsInGuardzone}"
-                                  ToolTip="{x:Static resources:Strings.Applies_to_hotkeys___macros_only_}"
-                                  Content="{x:Static resources:Strings.Prevent_targeting_innocents_in_guardzone}" />
-                        <CheckBox IsChecked="{Binding CurrentOptions.PreventAttackingInnocentsInGuardzone}"
-                                  ToolTip="{x:Static resources:Strings.Applies_to_hotkeys___macros_only_}"
-                                  Content="{x:Static resources:Strings.Prevent_attacking_innocents_in_guardzone}" />
-                        <Button Content="{x:Static resources:Strings.Target_Next_PvP_Enemy}"
-                                ToolTip="{x:Static resources:Strings.Target_Next_PvP_Enemy_Hint}"
-                                Command="{Binding TargetNextPvpEnemyCommand}" />
-                        <DockPanel LastChildFill="False" Margin="0,0,0,4">
-                            <TextBlock Text="{x:Static resources:Strings.Attack_target_rehue_hue_}" Width="170" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding CurrentOptions.AttackTargetRehueHue}" Width="40" VerticalAlignment="Center" />
-                            <Button Content="Palette" Width="70" Command="{Binding SelectAttackTargetHueCommand}" />
-                        </DockPanel>
-                        <optionsTab:QueueLastTargetControl DataContext="{Binding}" />
-                    </StackPanel>
-                </GroupBox>
                 <GroupBox Header="{x:Static resources:Strings.Macros}">
                     <StackPanel Margin="5">
                         <CheckBox Content="{x:Static resources:Strings.Sort_Macros_Alphabetical}"
@@ -241,7 +151,6 @@
                         </controls:OptionedCheckBoxControl>
                     </StackPanel>
                 </GroupBox>
-            </controls:ResponsiveGrid.Items>
         </controls:ResponsiveGrid>
     </Grid>
 </UserControl>

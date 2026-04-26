@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 
@@ -122,6 +122,7 @@ namespace ClassicAssist.UO.Data
             return output.ToString();
         }
 
+        /// <summary>UO mobile / item graphics are unsigned 16-bit; ReadInt16 is signed but casting preserves the wire value.</summary>
         public ushort ReadUInt16()
         {
             return (ushort) ReadInt16();

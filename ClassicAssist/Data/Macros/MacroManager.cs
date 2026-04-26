@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Assistant;
+using ClassicAssist.Data;
 using ClassicAssist.Browser.Models;
 using ClassicAssist.Shared.UI;
 using ClassicAssist.UO.Network.PacketFilter;
@@ -101,6 +102,21 @@ namespace ClassicAssist.Data.Macros
 
         public void Execute( MacroEntry macro, object[] parameters = null )
         {
+            if ( Options.CurrentOptions.MacroOneScriptOnly && !Replay )
+            {
+                if ( macro.IsBackground )
+                {
+                    if ( macro.IsRunning )
+                    {
+                        return;
+                    }
+                }
+                else if ( macro.IsRunning )
+                {
+                    return;
+                }
+            }
+
             if ( macro.IsBackground )
             {
                 if ( macro.IsRunning )

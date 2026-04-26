@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -123,6 +123,19 @@ namespace ClassicAssist.Data.Macros.Commands
 
                     return;
                 }
+            }
+
+            Mobile targetMobile = Engine.Mobiles.GetMobile( serial );
+
+            if ( targetMobile != null && serial != Engine.Player?.Serial )
+            {
+                // Make attack highlight authoritative over any current notoriety/target coloring.
+                int rehue = Options.CurrentOptions.AttackTargetRehueHue;
+                Engine.RehueList.RemoveByType( RehueType.Enemies, true );
+                Engine.RehueList.Add( serial, rehue, RehueType.Enemies );
+                Engine.RehueList.CheckMobileIncoming( targetMobile, targetMobile.Equipment );
+                Engine.RehueList.CheckMobileUpdate( targetMobile );
+                Engine.RehueList.CheckMobileMoving( targetMobile );
             }
 
             Engine.SendPacketToClient( new ChangeCombatant( serial ) );

@@ -22,6 +22,8 @@ namespace ClassicAssist.UO.Network
         public delegate void dMenuClick( int serial, int gumpId, int index, int id, int hue );
 
         public delegate void dShardChanged( string name );
+        public delegate void dSpellCast( int spellID );
+        public delegate void dAttackRequest( int targetSerial );
 
         public delegate void dTargetSentEvent( TargetType targetType, int senderSerial, int flags, int serial, int x,
             int y, int z, int id );
@@ -31,6 +33,8 @@ namespace ClassicAssist.UO.Network
         public static event dTargetSentEvent TargetSentEvent;
         public static event dGump GumpEvent;
         public static event dShardChanged ShardChangedEvent;
+        public static event dSpellCast SpellCastEvent;
+        public static event dAttackRequest AttackRequestEvent;
 
         public static event dMenuClick MenuClickedEvent;
 
@@ -40,6 +44,7 @@ namespace ClassicAssist.UO.Network
             _extendedHandlers = new PacketHandler[0x100];
 
             Register( 0x02, 7, OnMoveRequested );
+            Register( 0x05, 5, OnAttackRequest );
             Register( 0x06, 5, OnUseRequest );
             Register( 0x07, 7, OnLiftRequest );
             Register( 0x08, 15, OnDropRequest );
@@ -94,6 +99,7 @@ namespace ClassicAssist.UO.Network
             if ( ReadIdAsString( reader, out int id ) )
             {
                 Engine.LastSpellID = id;
+                SpellCastEvent?.Invoke( id );
             }
         }
 
@@ -130,7 +136,15 @@ namespace ClassicAssist.UO.Network
                 reader.Seek( 4, SeekOrigin.Current );
             }
 
-            Engine.LastSpellID = reader.ReadInt16();
+            int spellID = reader.ReadInt16();
+            Engine.LastSpellID = spellID;
+            SpellCastEvent?.Invoke( spellID );
+        }
+
+        private static void OnAttackRequest( PacketReader reader )
+        {
+            int serial = reader.ReadInt32();
+            AttackRequestEvent?.Invoke( serial );
         }
 
         private static void OnExtendedCommand( PacketReader reader )

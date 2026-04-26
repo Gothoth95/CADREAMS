@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ClassicAssist.UI.Views.MacrosTabControl"
+<UserControl x:Class="ClassicAssist.UI.Views.MacrosTabControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -290,6 +290,12 @@
                             IsEnabled="{Binding SelectedItem.IsRunning}"
                             Command="{Binding StopCommand, Mode=OneWay}" CommandParameter="{Binding SelectedItem}" />
                 </Grid>
+                <GroupBox Grid.Row="5" Margin="0,8,0,0" Padding="6,8,6,6"
+                          Header="{x:Static resources:Strings.One_script_only}">
+                    <CheckBox Margin="0,4,0,0" ToolTip="{x:Static resources:Strings.One_script_only_hint}"
+                              Content="{x:Static resources:Strings.Enabled}"
+                              IsChecked="{Binding MacroOneScriptOnly, Mode=TwoWay}" />
+                </GroupBox>
                 <GroupBox Header="{x:Static resources:Strings.Hotkeys}" Grid.Row="6" Padding="5" Margin="0,5,0,0">
                     <Grid>
                         <Grid.RowDefinitions>

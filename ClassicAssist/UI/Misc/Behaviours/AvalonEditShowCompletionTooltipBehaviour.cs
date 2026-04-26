@@ -1,4 +1,4 @@
-﻿#region License
+#region License
 
 // Copyright (C) 2025 Reetus
 // 
@@ -18,22 +18,21 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
 using ClassicAssist.Data.Macros;
-using ClassicAssist.UI.Controls;
 using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using IronPython.Runtime;
 using Microsoft.Scripting.Utils;
 using Microsoft.Xaml.Behaviors;
-using static ClassicAssist.UI.Views.MacrosTabControl;
 
 namespace ClassicAssist.UI.Misc.Behaviours
 {
@@ -45,8 +44,10 @@ namespace ClassicAssist.UI.Misc.Behaviours
         public static readonly DependencyProperty IsPausedProperty =
             DependencyProperty.Register( nameof( IsPaused ), typeof( bool ), typeof( AvalonEditShowCompletionTooltipBehaviour ), new PropertyMetadata( false ) );
 
+        private static readonly object SharedCompletionDataLock = new object();
+        private static List<PythonCompletionData> _sharedCompletionData;
+
         private readonly ToolTip _toolTip = new ToolTip();
-        private List<PythonCompletionData> _completionData;
         private CompletionWindow _completionWindow;
         private TextEditor _textEditor;
 
@@ -67,56 +68,159 @@ namespace ClassicAssist.UI.Misc.Behaviours
             return char.IsLetterOrDigit( c ) || c == '_';
         }
 
+        private static List<PythonCompletionData> GetSharedCompletionData()
+        {
+            if ( _sharedCompletionData != null )
+            {
+                return _sharedCompletionData;
+            }
+
+            lock ( SharedCompletionDataLock )
+            {
+                if ( _sharedCompletionData != null )
+                {
+                    return _sharedCompletionData;
+                }
+
+                var list = new List<PythonCompletionData>();
+
+                IEnumerable<Type> namespaces = Assembly.GetExecutingAssembly().GetTypes().Where( t =>
+                    t.Namespace != null && t.IsPublic && t.IsClass && t.Namespace.EndsWith( "Macros.Commands" ) );
+
+                foreach ( Type type in namespaces )
+                {
+                    MethodInfo[] methods = type.GetMethods( BindingFlags.Public | BindingFlags.Static );
+
+                    foreach ( MethodInfo methodInfo in methods )
+                    {
+                        CommandsDisplayAttribute attr = methodInfo.GetCustomAttribute<CommandsDisplayAttribute>();
+
+                        if ( attr == null )
+                        {
+                            continue;
+                        }
+
+                        string fullName = $"{methodInfo.Name}(";
+                        bool first = true;
+
+                        foreach ( ParameterInfo parameterInfo in methodInfo.GetParameters() )
+                        {
+                            if ( first )
+                            {
+                                first = false;
+                            }
+                            else
+                            {
+                                fullName += ", ";
+                            }
+
+                            bool optional = parameterInfo.RawDefaultValue == null || parameterInfo.RawDefaultValue.GetType() != typeof( DBNull );
+
+                            fullName += $"{( optional ? "[" : "" )}{parameterInfo.ParameterType.Name} {parameterInfo.Name}{( optional ? "]" : "" )}";
+                        }
+
+                        fullName += $"):{methodInfo.ReturnType.Name}";
+
+                        list.Add( new PythonCompletionData( methodInfo.Name, fullName, attr.Description, attr.InsertText ) );
+                    }
+                }
+
+                _sharedCompletionData = list.Distinct( new CompletionSignatureEqualityComparer() ).ToList();
+                return _sharedCompletionData;
+            }
+        }
+
         protected override void OnAttached()
         {
             _textEditor = AssociatedObject;
 
-            IEnumerable<Type> namespaces = Assembly.GetExecutingAssembly().GetTypes().Where( t =>
-                t.Namespace != null && t.IsPublic && t.IsClass && t.Namespace.EndsWith( "Macros.Commands" ) );
-
-            _completionData = new List<PythonCompletionData>();
-
-            foreach ( Type type in namespaces )
-            {
-                MethodInfo[] methods = type.GetMethods( BindingFlags.Public | BindingFlags.Static );
-
-                foreach ( MethodInfo methodInfo in methods )
-                {
-                    CommandsDisplayAttribute attr = methodInfo.GetCustomAttribute<CommandsDisplayAttribute>();
-
-                    if ( attr == null )
-                    {
-                        continue;
-                    }
-
-                    string fullName = $"{methodInfo.Name}(";
-                    bool first = true;
-
-                    foreach ( ParameterInfo parameterInfo in methodInfo.GetParameters() )
-                    {
-                        if ( first )
-                        {
-                            first = false;
-                        }
-                        else
-                        {
-                            fullName += ", ";
-                        }
-
-                        bool optional = parameterInfo.RawDefaultValue == null || parameterInfo.RawDefaultValue.GetType() != typeof( DBNull );
-
-                        fullName += $"{( optional ? "[" : "" )}{parameterInfo.ParameterType.Name} {parameterInfo.Name}{( optional ? "]" : "" )}";
-                    }
-
-                    fullName += $"):{methodInfo.ReturnType.Name}";
-
-                    _completionData.Add( new PythonCompletionData( methodInfo.Name, fullName, attr.Description, attr.InsertText ) );
-                }
-            }
-
             _textEditor.TextArea.TextEntered += OnTextEntered;
             _textEditor.MouseHover += OnMouseHover;
             _textEditor.MouseHoverStopped += OnMouseHoverStopped;
+        }
+
+        protected override void OnDetaching()
+        {
+            if ( _textEditor != null )
+            {
+                _textEditor.TextArea.TextEntered -= OnTextEntered;
+                _textEditor.MouseHover -= OnMouseHover;
+                _textEditor.MouseHoverStopped -= OnMouseHoverStopped;
+            }
+
+            _completionWindow?.Close();
+            _completionWindow = null;
+            base.OnDetaching();
+        }
+
+        private void ApplyCompletionWindowChrome( CompletionWindow window )
+        {
+            if ( window == null || _textEditor == null )
+            {
+                return;
+            }
+
+            // CompletionWindow is a separate top-level window: it does not inherit MainWindow.Resources,
+            // so DynamicResource in styles would not resolve and the popup stays SystemColors (white) while
+            // text uses theme foreground (invisible). Merge theme dictionaries onto the popup first.
+            string asmName = Assembly.GetExecutingAssembly().GetName().Name;
+            var themeUri = new Uri( $"pack://application:,,,/{asmName};component/Resources/DarkTheme.xaml", UriKind.Absolute );
+            window.Resources.MergedDictionaries.Add( new ResourceDictionary { Source = themeUri } );
+
+            window.SetResourceReference( Control.BackgroundProperty, "ThemeInnerControlBackgroundBrush" );
+            window.SetResourceReference( Control.BorderBrushProperty, "ThemeBorderBrush" );
+
+            if ( window.TryFindResource( typeof( CompletionWindow ) ) is Style style )
+            {
+                window.Style = style;
+            }
+
+            // AvalonEdit creates a ToolTip in code (description pane). It does not inherit CompletionWindow
+            // resources when opened, so it stays system-themed (white + gray text). Theme it after load.
+            window.Loaded -= CompletionWindow_Loaded;
+            window.Loaded += CompletionWindow_Loaded;
+        }
+
+        private void CompletionWindow_Loaded( object sender, RoutedEventArgs e )
+        {
+            CompletionWindow w = sender as CompletionWindow;
+            if ( w == null )
+            {
+                return;
+            }
+
+            w.Loaded -= CompletionWindow_Loaded;
+
+            // CompletionList is a separate logical tree: theme ListBox styles may bind Foreground to resources that do not resolve on this window.
+            SolidColorBrush itemFg = new SolidColorBrush( Color.FromRgb( 0xF1, 0xF5, 0xF9 ) );
+            w.CompletionList.Foreground = itemFg;
+            w.CompletionList.ApplyTemplate();
+            if ( w.CompletionList.ListBox != null )
+            {
+                w.CompletionList.ListBox.Foreground = itemFg;
+            }
+
+            FieldInfo toolTipField = typeof( CompletionWindow ).GetField( "toolTip", BindingFlags.Instance | BindingFlags.NonPublic );
+            ToolTip tip = toolTipField?.GetValue( w ) as ToolTip;
+            if ( tip == null )
+            {
+                return;
+            }
+
+            foreach ( ResourceDictionary dict in w.Resources.MergedDictionaries )
+            {
+                tip.Resources.MergedDictionaries.Add( dict );
+            }
+
+            if ( w.TryFindResource( typeof( ToolTip ) ) is Style tooltipStyle )
+            {
+                tip.Style = tooltipStyle;
+            }
+            else
+            {
+                tip.SetResourceReference( Control.BackgroundProperty, "ThemeBackgroundBrush" );
+                tip.SetResourceReference( TextElement.ForegroundProperty, "ForegroundColor1Brush" );
+            }
         }
 
         private void OnMouseHoverStopped( object sender, MouseEventArgs e )
@@ -177,7 +281,7 @@ namespace ClassicAssist.UI.Misc.Behaviours
 
                 string word = fullLine.Substring( startPosition, endPosition - startPosition );
 
-                IEnumerable<PythonCompletionData> matches = _completionData.Where( i => i.MethodName.Equals( word ) ).ToArray();
+                IEnumerable<PythonCompletionData> matches = GetSharedCompletionData().Where( i => i.MethodName.Equals( word ) ).ToArray();
 
                 if ( matches.Any() )
                 {
@@ -233,36 +337,67 @@ namespace ClassicAssist.UI.Misc.Behaviours
 
         private void OnTextEntered( object sender, TextCompositionEventArgs e )
         {
-            DocumentLine line = _textEditor.TextArea.Document.Lines[_textEditor.TextArea.Caret.Line - 1];
-
-            string trimmed = _textEditor.TextArea.Document.GetText( line ).TrimStart( ' ', '\t' );
-
-            if ( trimmed.TrimStart( ' ', '\t' ).Length < 3 )
+            if ( _textEditor?.Document == null )
             {
                 return;
             }
 
-            List<PythonCompletionData> data = _completionData.Where( m => m.Name.StartsWith( trimmed, StringComparison.InvariantCultureIgnoreCase ) )
-                .Distinct( new SameNameComparer() ).ToList();
-
-            if ( data.Count <= 0 )
+            if ( _completionWindow != null )
             {
-                _completionWindow?.Close();
                 return;
             }
 
-            foreach ( PythonCompletionData item in data.Where( item => item.Content == null ) )
+            TextDocument document = _textEditor.Document;
+            int caret = _textEditor.CaretOffset;
+            int wordStart = caret;
+
+            while ( wordStart > 0 && IsWordChar( document.GetCharAt( wordStart - 1 ) ) )
             {
-                item.Content = new CompletionEntry( item.Name, item.Example, _textEditor.SyntaxHighlighting );
+                wordStart--;
             }
 
-            _completionWindow = new CompletionWindow( _textEditor.TextArea )
+            if ( caret - wordStart < 3 )
             {
-                CloseWhenCaretAtBeginning = true, CloseAutomatically = false, Width = 500, SizeToContent = SizeToContent.WidthAndHeight
+                return;
+            }
+
+            CompletionWindow window = new CompletionWindow( _textEditor.TextArea );
+            ApplyCompletionWindowChrome( window );
+            window.CloseWhenCaretAtBeginning = true;
+            // Must be true so the popup closes when the caret leaves the word, on Escape, and when focus leaves the editor (see CompletionWindow.CloseOnFocusLost).
+            window.CloseAutomatically = true;
+
+            window.StartOffset = wordStart;
+            window.EndOffset = caret;
+
+            foreach ( PythonCompletionData item in GetSharedCompletionData() )
+            {
+                window.CompletionList.CompletionData.Add( item );
+            }
+
+            _completionWindow = window;
+            window.Closed += ( _, __ ) =>
+            {
+                if ( ReferenceEquals( _completionWindow, window ) )
+                {
+                    _completionWindow = null;
+                }
             };
-            _completionWindow.CompletionList.CompletionData.AddRange( data );
-            _completionWindow.Show();
-            _completionWindow.Closed += delegate { _completionWindow = null; };
+
+            window.Show();
+        }
+
+        private sealed class CompletionSignatureEqualityComparer : IEqualityComparer<PythonCompletionData>
+        {
+            public bool Equals( PythonCompletionData x, PythonCompletionData y )
+            {
+                return !ReferenceEquals( x, null ) && !ReferenceEquals( y, null ) && x.Name.Equals( y.Name, StringComparison.Ordinal );
+            }
+
+            public int GetHashCode( PythonCompletionData obj )
+            {
+                return obj.Name.GetHashCode();
+            }
         }
     }
 }
