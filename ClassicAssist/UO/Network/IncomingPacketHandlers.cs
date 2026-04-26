@@ -45,7 +45,6 @@ namespace ClassicAssist.UO.Network
         public delegate void dMobileIncoming( Mobile mobile, ItemCollection equipment );
 
         public delegate void dMobileUpdated( Mobile mobile );
-        public delegate void dMobileHitsUpdated( int serial, int oldHits, int newHits, int hitsMax );
 
         public delegate void dNewWorldItem( Item item );
 
@@ -71,7 +70,6 @@ namespace ClassicAssist.UO.Network
         public static event dSkillUpdated SkillUpdatedEvent;
         public static event dSkillList SkillsListEvent;
         public static event dMobileUpdated MobileUpdatedEvent;
-        public static event dMobileHitsUpdated MobileHitsUpdatedEvent;
         public static event dMobileIncoming MobileIncomingEvent;
 
         public static event dNewWorldItem NewWorldItemEvent;
@@ -1383,10 +1381,8 @@ namespace ClassicAssist.UO.Network
             int hits = reader.ReadInt16();
 
             Mobile mobile = Engine.GetOrCreateMobile( serial );
-            int oldHits = mobile.Hits;
             mobile.Hits = hits;
             mobile.HitsMax = hitsMax;
-            MobileHitsUpdatedEvent?.Invoke( serial, oldHits, hits, hitsMax );
         }
 
         private static void OnSupportedFeatures( PacketReader reader )

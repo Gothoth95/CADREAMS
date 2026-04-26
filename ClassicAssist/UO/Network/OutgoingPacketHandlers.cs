@@ -22,8 +22,6 @@ namespace ClassicAssist.UO.Network
         public delegate void dMenuClick( int serial, int gumpId, int index, int id, int hue );
 
         public delegate void dShardChanged( string name );
-        public delegate void dSpellCast( int spellID );
-        public delegate void dAttackRequest( int targetSerial );
 
         public delegate void dTargetSentEvent( TargetType targetType, int senderSerial, int flags, int serial, int x,
             int y, int z, int id );
@@ -33,8 +31,6 @@ namespace ClassicAssist.UO.Network
         public static event dTargetSentEvent TargetSentEvent;
         public static event dGump GumpEvent;
         public static event dShardChanged ShardChangedEvent;
-        public static event dSpellCast SpellCastEvent;
-        public static event dAttackRequest AttackRequestEvent;
 
         public static event dMenuClick MenuClickedEvent;
 
@@ -99,7 +95,6 @@ namespace ClassicAssist.UO.Network
             if ( ReadIdAsString( reader, out int id ) )
             {
                 Engine.LastSpellID = id;
-                SpellCastEvent?.Invoke( id );
             }
         }
 
@@ -138,13 +133,11 @@ namespace ClassicAssist.UO.Network
 
             int spellID = reader.ReadInt16();
             Engine.LastSpellID = spellID;
-            SpellCastEvent?.Invoke( spellID );
         }
 
         private static void OnAttackRequest( PacketReader reader )
         {
-            int serial = reader.ReadInt32();
-            AttackRequestEvent?.Invoke( serial );
+            reader.ReadInt32();
         }
 
         private static void OnExtendedCommand( PacketReader reader )

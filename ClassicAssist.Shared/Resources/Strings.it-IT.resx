@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -105,6 +105,9 @@
   </data>
   <data name="Attack Enemy" xml:space="preserve">
     <value>Attack Enemy</value>
+  </data>
+  <data name="Attack Enemy + Rehue Target" xml:space="preserve">
+    <value>Attacca Enemy + Rehue Target</value>
   </data>
   <data name="Attack Last" xml:space="preserve">
     <value>Attack Last</value>
@@ -529,6 +532,12 @@
   <data name="Options" xml:space="preserve">
     <value>Opzioni</value>
   </data>
+  <data name="One script only" xml:space="preserve">
+    <value>Una sola esecuzione</value>
+  </data>
+  <data name="One script only hint" xml:space="preserve">
+    <value>Se attivo, premere di nuovo la macro mentre è in esecuzione non fa nulla. Quando termina, la pressione successiva la riavvia. Per macro in background, la ripetizione non le ferma: usa Stop.</value>
+  </data>
   <data name="Orange Petal" xml:space="preserve">
     <value>Orange Petal</value>
   </data>
@@ -752,7 +761,79 @@
     <value>Target prossimo nemico PvP</value>
   </data>
   <data name="Target Next PvP Enemy Hint" xml:space="preserve">
-    <value>Cicla i nemici PvP vicini (solo umanoidi, esclude invulnerabili).</value>
+    <value>Cicla i nemici PvP vicini (umanoidi + corpi trasformazione/animali in Bodies.json, es. lupo/llama/ostard Ninjitsu; esclude notorietà invulnerabile).</value>
+  </data>
+  <data name="Target Next PvP Notoriety" xml:space="preserve">
+    <value>Notorietà Target Next PvP</value>
+  </data>
+  <data name="Target Next PvP options" xml:space="preserve">
+    <value>Target Next PvP</value>
+  </data>
+  <data name="Target Next Friendly" xml:space="preserve">
+    <value>Target prossimo Friendly</value>
+  </data>
+  <data name="Target Next Friendly Hint" xml:space="preserve">
+    <value>Cicla alleati (verdi) e/o lista amici (umanoidi + corpi trasformazione/animali in Bodies.json).</value>
+  </data>
+  <data name="Target Next Friendly options" xml:space="preserve">
+    <value>Target Next Friendly</value>
+  </data>
+  <data name="Target Next Friendly filters" xml:space="preserve">
+    <value>Includi</value>
+  </data>
+  <data name="Target Next Friendly include ally" xml:space="preserve">
+    <value>Friendly (verdi / notorietà Ally)</value>
+  </data>
+  <data name="Target Next Friendly include friends" xml:space="preserve">
+    <value>Lista amici</value>
+  </data>
+  <data name="Innocent guard zone warning header" xml:space="preserve">
+    <value>Innocente in zona guardie (enemy target)</value>
+  </data>
+  <data name="Innocent guard zone warning hint" xml:space="preserve">
+    <value>Quando imposti un Innocente come enemy in area sorvegliata, viene mostrato un messaggio aggiuntivo sopra la testa dell'innocente e sul personaggio prima dei messaggi enemy abituali.</value>
+  </data>
+  <data name="Innocent guard zone warning message:" xml:space="preserve">
+    <value>Messaggio di avviso:</value>
+  </data>
+  <data name="Innocent guard zone warning hue:" xml:space="preserve">
+    <value>Hue avviso:</value>
+  </data>
+  <data name="Test notoriety message colors" xml:space="preserve">
+    <value>Test colori messaggi (notorietà)</value>
+  </data>
+  <data name="PvP" xml:space="preserve">
+    <value>PvP</value>
+  </data>
+  <data name="PvP tab overview" xml:space="preserve">
+    <value>Bersaglio e combattimento</value>
+  </data>
+  <data name="PvP tab subtitle" xml:space="preserve">
+    <value>Messaggi sopra la testa, avvisi guardia, Target Next PvP / Friendly e rehue attacco — opzioni per il PvP.</value>
+  </data>
+  <data name="PvP section placeholders" xml:space="preserve">
+    <value>Segnaposto messaggi</value>
+  </data>
+  <data name="PvP section target" xml:space="preserve">
+    <value>Target e messaggi</value>
+  </data>
+  <data name="PvP section colors" xml:space="preserve">
+    <value>Colori notorietà</value>
+  </data>
+  <data name="PvP section guard" xml:space="preserve">
+    <value>Zona guardia</value>
+  </data>
+  <data name="PvP section pvp cycle" xml:space="preserve">
+    <value>Target Next PvP</value>
+  </data>
+  <data name="PvP section friendly" xml:space="preserve">
+    <value>Target Next Friendly</value>
+  </data>
+  <data name="PvP section rehue" xml:space="preserve">
+    <value>Rehue attacco</value>
+  </data>
+  <data name="PvP target message colors" xml:space="preserve">
+    <value>Colori messaggi target (notorietà)</value>
   </data>
   <data name="Target new friend..." xml:space="preserve">
     <value>Target nuovo Amico...</value>
@@ -991,6 +1072,31 @@
   <data name="Friend target message:" xml:space="preserve">
     <value>Notifica sul Friend Target:</value>
   </data>
+  <data name="Friend target self message (over your head):" xml:space="preserve">
+    <value>Notifica su di te (Friend Target):</value>
+  </data>
+  <data name="Friend target message hue:" xml:space="preserve">
+    <value>Colore messaggio friend (sul bersaglio):</value>
+  </data>
+  <data name="Friend target self message hue:" xml:space="preserve">
+    <value>Colore messaggio friend (su di te):</value>
+  </data>
+  <data name="Mobile target message format hint" xml:space="preserve">
+    <value>Con le parentesi graffe: {0} nome, {1} notorietà, {2} serial hex, {3} distanza, {4} body hex, {5} hits, {6} hits max, {7} hits % (0–100). Senza { }, il nome viene aggiunto dopo il testo.</value>
+  </data>
+  <data name="PvP message placeholders" xml:space="preserve">
+    <value>Segnaposti messaggi (friend / mobile bersaglio)</value>
+  </data>
+  <data name="Mobile target placeholders list" xml:space="preserve">
+    <value>{0}  Nome
+{1}  Notorietà (nome enum)
+{2}  Serial (hex, es. 0x40051234)
+{3}  Distanza in tile
+{4}  Body / graphic id (hex)
+{5}  Hits attuali
+{6}  Hits massimi
+{7}  Hits in percentuale (0–100; nel testo es. &quot;{7}%&quot;)</value>
+  </data>
   <data name="Enemy target message:" xml:space="preserve">
     <value>Notifica sul Enemy Target:</value>
   </data>
@@ -1002,6 +1108,15 @@
   </data>
   <data name="Attack target rehue hue:" xml:space="preserve">
     <value>Colore rehue target in attacco:</value>
+  </data>
+  <data name="Test attack rehue current enemy target" xml:space="preserve">
+    <value>Test rehue attacco su enemy target corrente</value>
+  </data>
+  <data name="Test attack rehue current enemy target hint" xml:space="preserve">
+    <value>Applica il colore rehue attacco all'enemy target corrente (impostato da Target Next PvP).</value>
+  </data>
+  <data name="No enemy target selected..." xml:space="preserve">
+    <value>Nessun enemy target selezionato...</value>
   </data>
   <data name="Macro name must be unique." xml:space="preserve">
     <value>I nomi degli Script devono essere unici.</value>
@@ -1967,3 +2082,4 @@ Sei sicuro di voler continuare?</value>
     <value>Pacchetti abilitati:</value>
   </data>
 </root>
+

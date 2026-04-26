@@ -106,6 +106,9 @@
   <data name="Attack Enemy" xml:space="preserve">
     <value>Attack Enemy</value>
   </data>
+  <data name="Attack Enemy + Rehue Target" xml:space="preserve">
+    <value>Attack Enemy + Rehue Target</value>
+  </data>
   <data name="Attack Last" xml:space="preserve">
     <value>Attack Last</value>
   </data>
@@ -526,6 +529,12 @@
   <data name="Options" xml:space="preserve">
     <value>Options</value>
   </data>
+  <data name="One script only" xml:space="preserve">
+    <value>One script only</value>
+  </data>
+  <data name="One script only hint" xml:space="preserve">
+    <value>While enabled, pressing the macro again while it is running does nothing. After it finishes, the next press runs it again. For background macros, a repeat press does not stop the script—use Stop.</value>
+  </data>
   <data name="Orange Petal" xml:space="preserve">
     <value>Orange Petal</value>
   </data>
@@ -749,7 +758,79 @@
     <value>Target Next PvP Enemy</value>
   </data>
   <data name="Target Next PvP Enemy Hint" xml:space="preserve">
-    <value>Cycles nearby PvP enemies (humanoid only, excludes invulnerable).</value>
+    <value>Cycles nearby PvP enemies (humanoids plus spell/animal bodies in Bodies.json, e.g. Ninjitsu wolf/llama/ostard; excludes invulnerable notoriety).</value>
+  </data>
+  <data name="Target Next PvP Notoriety" xml:space="preserve">
+    <value>Target Next PvP Notoriety</value>
+  </data>
+  <data name="Target Next PvP options" xml:space="preserve">
+    <value>Target Next PvP</value>
+  </data>
+  <data name="Target Next Friendly" xml:space="preserve">
+    <value>Target Next Friendly</value>
+  </data>
+  <data name="Target Next Friendly Hint" xml:space="preserve">
+    <value>Cycle nearby allies (green) and/or friends-list mobiles (humanoids plus spell/animal bodies in Bodies.json).</value>
+  </data>
+  <data name="Target Next Friendly options" xml:space="preserve">
+    <value>Target Next Friendly</value>
+  </data>
+  <data name="Target Next Friendly filters" xml:space="preserve">
+    <value>Include</value>
+  </data>
+  <data name="Target Next Friendly include ally" xml:space="preserve">
+    <value>Friendly (green / Ally notoriety)</value>
+  </data>
+  <data name="Target Next Friendly include friends" xml:space="preserve">
+    <value>Friends list</value>
+  </data>
+  <data name="Innocent guard zone warning header" xml:space="preserve">
+    <value>Innocent in guard zone (enemy target)</value>
+  </data>
+  <data name="Innocent guard zone warning hint" xml:space="preserve">
+    <value>When you set an Innocent as enemy inside a guarded region, an extra overhead message is shown on the innocent and on yourself before the normal enemy target messages.</value>
+  </data>
+  <data name="Innocent guard zone warning message:" xml:space="preserve">
+    <value>Warning message:</value>
+  </data>
+  <data name="Innocent guard zone warning hue:" xml:space="preserve">
+    <value>Warning hue:</value>
+  </data>
+  <data name="Test notoriety message colors" xml:space="preserve">
+    <value>Test notoriety message colors</value>
+  </data>
+  <data name="PvP" xml:space="preserve">
+    <value>PvP</value>
+  </data>
+  <data name="PvP tab overview" xml:space="preserve">
+    <value>Targeting &amp; combat</value>
+  </data>
+  <data name="PvP tab subtitle" xml:space="preserve">
+    <value>Head messages, guard alerts, Target Next PvP / Friendly, and attack rehue — options for player fights.</value>
+  </data>
+  <data name="PvP section placeholders" xml:space="preserve">
+    <value>Message placeholders</value>
+  </data>
+  <data name="PvP section target" xml:space="preserve">
+    <value>Target &amp; messages</value>
+  </data>
+  <data name="PvP section colors" xml:space="preserve">
+    <value>Notoriety colors</value>
+  </data>
+  <data name="PvP section guard" xml:space="preserve">
+    <value>Guard zone</value>
+  </data>
+  <data name="PvP section pvp cycle" xml:space="preserve">
+    <value>Target Next PvP</value>
+  </data>
+  <data name="PvP section friendly" xml:space="preserve">
+    <value>Target Next Friendly</value>
+  </data>
+  <data name="PvP section rehue" xml:space="preserve">
+    <value>Attack rehue</value>
+  </data>
+  <data name="PvP target message colors" xml:space="preserve">
+    <value>Target message colors (notoriety)</value>
   </data>
   <data name="Target new friend..." xml:space="preserve">
     <value>Target new friend...</value>
@@ -988,6 +1069,31 @@
   <data name="Friend target message:" xml:space="preserve">
     <value>Friend target message:</value>
   </data>
+  <data name="Friend target self message (over your head):" xml:space="preserve">
+    <value>Friend target self message (over your head):</value>
+  </data>
+  <data name="Friend target message hue:" xml:space="preserve">
+    <value>Friend message color (over target):</value>
+  </data>
+  <data name="Friend target self message hue:" xml:space="preserve">
+    <value>Friend message color (over self):</value>
+  </data>
+  <data name="Mobile target message format hint" xml:space="preserve">
+    <value>Placeholders when { } is used: {0} name, {1} notoriety, {2} serial hex, {3} distance, {4} body id hex, {5} hits, {6} hits max, {7} hits % (0–100). Without { }, the name is appended after the text.</value>
+  </data>
+  <data name="PvP message placeholders" xml:space="preserve">
+    <value>Message placeholders (friend / target mobile)</value>
+  </data>
+  <data name="Mobile target placeholders list" xml:space="preserve">
+    <value>{0}  Name
+{1}  Notoriety (enum name)
+{2}  Serial (hex, e.g. 0x40051234)
+{3}  Distance in tiles
+{4}  Body / graphic id (hex)
+{5}  Hits (current)
+{6}  Hits max
+{7}  Hits as percent (0–100; in text use e.g. &quot;{7}%&quot;)</value>
+  </data>
   <data name="Enemy target message:" xml:space="preserve">
     <value>Enemy target message:</value>
   </data>
@@ -999,6 +1105,15 @@
   </data>
   <data name="Attack target rehue hue:" xml:space="preserve">
     <value>Attack target rehue hue:</value>
+  </data>
+  <data name="Test attack rehue current enemy target" xml:space="preserve">
+    <value>Test attack rehue current enemy target</value>
+  </data>
+  <data name="Test attack rehue current enemy target hint" xml:space="preserve">
+    <value>Applies the attack rehue color to your current enemy target (set via Target Next PvP).</value>
+  </data>
+  <data name="No enemy target selected..." xml:space="preserve">
+    <value>No enemy target selected...</value>
   </data>
   <data name="Macro name must be unique." xml:space="preserve">
     <value>Macro name must be unique.</value>
@@ -2120,3 +2235,4 @@ Are you sure you wish to continue?</value>
     <value>Open in external editor</value>
   </data>
 </root>
+

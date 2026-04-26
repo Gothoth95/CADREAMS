@@ -60,12 +60,6 @@ namespace ClassicAssist.Data
         private bool _targetNextPvpIncludeMurderer = true;
         private bool _targetNextFriendlyIncludeAlly = true;
         private bool _targetNextFriendlyIncludeFriends = true;
-        private bool _pvpDpsStopAfterDuration;
-        private int _pvpDpsDurationSeconds = 600;
-        private bool _pvpDpsIncludeMelee = true;
-        private bool _pvpDpsIncludeSpell = true;
-        private bool _pvpDpsIncludePet = true;
-        private bool _pvpDpsIncludeSelfDamageTaken = true;
         private string _targetNextInnocentGuardWarningMessage = "GUARD ZONE";
         private int _targetNextInnocentGuardWarningHue = 33;
         private string _enemyTargetMessage;
@@ -334,42 +328,6 @@ namespace ClassicAssist.Data
         {
             get => _targetNextFriendlyIncludeFriends;
             set => SetProperty( ref _targetNextFriendlyIncludeFriends, value );
-        }
-
-        public bool PvpDpsStopAfterDuration
-        {
-            get => _pvpDpsStopAfterDuration;
-            set => SetProperty( ref _pvpDpsStopAfterDuration, value );
-        }
-
-        public int PvpDpsDurationSeconds
-        {
-            get => _pvpDpsDurationSeconds;
-            set => SetProperty( ref _pvpDpsDurationSeconds, value );
-        }
-
-        public bool PvpDpsIncludeMelee
-        {
-            get => _pvpDpsIncludeMelee;
-            set => SetProperty( ref _pvpDpsIncludeMelee, value );
-        }
-
-        public bool PvpDpsIncludeSpell
-        {
-            get => _pvpDpsIncludeSpell;
-            set => SetProperty( ref _pvpDpsIncludeSpell, value );
-        }
-
-        public bool PvpDpsIncludePet
-        {
-            get => _pvpDpsIncludePet;
-            set => SetProperty( ref _pvpDpsIncludePet, value );
-        }
-
-        public bool PvpDpsIncludeSelfDamageTaken
-        {
-            get => _pvpDpsIncludeSelfDamageTaken;
-            set => SetProperty( ref _pvpDpsIncludeSelfDamageTaken, value );
         }
 
         public string TargetNextInnocentGuardWarningMessage

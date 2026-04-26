@@ -12,6 +12,13 @@
     {
       "Name": "dreams",
       "Address": "login.uodreams.com",
+      "Port": 2594,
+      "HasStatusProtocol": true,
+      "Encryption": false
+    },
+    {
+      "Name": "local",
+      "Address": "127.0.0.1",
       "Port": 2593,
       "HasStatusProtocol": true,
       "Encryption": false

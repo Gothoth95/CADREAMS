@@ -27,6 +27,8 @@ Output/net48/verify_classicassist_api.py
 Output/net48/timer_dashboard_gui.py
 Output/net48/timer_dashboard_ironpython.py
 Output/net48/Modules/uo_helpers.py
+# IronPython stdlib / dump locale nella cartella publish (non versionare)
+Output/net48/Modules/
 
 Output2/
 packages/

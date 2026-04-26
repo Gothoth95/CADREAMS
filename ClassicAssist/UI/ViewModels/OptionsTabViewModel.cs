@@ -3,7 +3,6 @@ using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
 using Assistant;
 using ClassicAssist.Data;
 using ClassicAssist.Data.Hotkeys;
@@ -17,7 +16,6 @@ using ClassicAssist.UI.Views;
 using ClassicAssist.UI.Views.OptionsTab;
 using ClassicAssist.UO.Data;
 using ClassicAssist.UO.Gumps;
-using ClassicAssist.UO.Network;
 using Newtonsoft.Json.Linq;
 
 namespace ClassicAssist.UI.ViewModels
@@ -36,29 +34,6 @@ namespace ClassicAssist.UI.ViewModels
         private ICommand _targetNextFriendlyCommand;
         private ICommand _selectInnocentGuardHueCommand;
         private ICommand _selectFriendTargetHueCommand;
-        private ICommand _startPvpDpsTrackerCommand;
-        private ICommand _stopPvpDpsTrackerCommand;
-        private ICommand _resetPvpDpsTrackerCommand;
-        private readonly DispatcherTimer _pvpDpsTimer;
-        private DateTime _pvpDpsStartedAt = DateTime.MinValue;
-        private DateTime _lastSpellAt = DateTime.MinValue;
-        private DateTime _lastMeleeAt = DateTime.MinValue;
-        private int _pvpMeleeDamage;
-        private int _pvpSpellDamage;
-        private int _pvpPetDamage;
-        private int _pvpSelfDamageTaken;
-        private bool _pvpDpsRunning;
-        private string _pvpDpsElapsedDisplay = "0s";
-
-        public OptionsTabViewModel()
-        {
-            _pvpDpsTimer = new DispatcherTimer( TimeSpan.FromSeconds( 1 ), DispatcherPriority.Background, OnPvpDpsTick,
-                _dispatcher );
-
-            IncomingPacketHandlers.MobileHitsUpdatedEvent += OnMobileHitsUpdated;
-            OutgoingPacketHandlers.SpellCastEvent += OnSpellCast;
-            OutgoingPacketHandlers.AttackRequestEvent += OnAttackRequest;
-        }
 
         public ICommand MacrosGumpChangedCommand =>
             _macrosGumpChangedCommand ?? ( _macrosGumpChangedCommand = new RelayCommand( MacrosGumpChanged ) );
@@ -102,90 +77,6 @@ namespace ClassicAssist.UI.ViewModels
         public ICommand SelectFriendTargetHueCommand =>
             _selectFriendTargetHueCommand ??
             ( _selectFriendTargetHueCommand = new RelayCommand( SelectFriendTargetHue, o => true ) );
-
-        public ICommand StartPvpDpsTrackerCommand =>
-            _startPvpDpsTrackerCommand ??
-            ( _startPvpDpsTrackerCommand = new RelayCommand( StartPvpDpsTracker, o => !PvpDpsRunning ) );
-
-        public ICommand StopPvpDpsTrackerCommand =>
-            _stopPvpDpsTrackerCommand ??
-            ( _stopPvpDpsTrackerCommand = new RelayCommand( StopPvpDpsTracker, o => PvpDpsRunning ) );
-
-        public ICommand ResetPvpDpsTrackerCommand =>
-            _resetPvpDpsTrackerCommand ??
-            ( _resetPvpDpsTrackerCommand = new RelayCommand( ResetPvpDpsTracker, o => true ) );
-
-        public bool PvpDpsRunning
-        {
-            get => _pvpDpsRunning;
-            private set
-            {
-                SetProperty( ref _pvpDpsRunning, value );
-                OnPropertyChanged( nameof( PvpDpsTotalDamage ) );
-                OnPropertyChanged( nameof( PvpDpsDps ) );
-            }
-        }
-
-        public string PvpDpsElapsedDisplay
-        {
-            get => _pvpDpsElapsedDisplay;
-            private set => SetProperty( ref _pvpDpsElapsedDisplay, value );
-        }
-
-        public int PvpDpsMeleeDamage
-        {
-            get => _pvpMeleeDamage;
-            private set
-            {
-                SetProperty( ref _pvpMeleeDamage, value );
-                OnPropertyChanged( nameof( PvpDpsTotalDamage ) );
-                OnPropertyChanged( nameof( PvpDpsDps ) );
-            }
-        }
-
-        public int PvpDpsSpellDamage
-        {
-            get => _pvpSpellDamage;
-            private set
-            {
-                SetProperty( ref _pvpSpellDamage, value );
-                OnPropertyChanged( nameof( PvpDpsTotalDamage ) );
-                OnPropertyChanged( nameof( PvpDpsDps ) );
-            }
-        }
-
-        public int PvpDpsPetDamage
-        {
-            get => _pvpPetDamage;
-            private set
-            {
-                SetProperty( ref _pvpPetDamage, value );
-                OnPropertyChanged( nameof( PvpDpsTotalDamage ) );
-                OnPropertyChanged( nameof( PvpDpsDps ) );
-            }
-        }
-
-        public int PvpDpsSelfDamageTaken
-        {
-            get => _pvpSelfDamageTaken;
-            private set => SetProperty( ref _pvpSelfDamageTaken, value );
-        }
-
-        public int PvpDpsTotalDamage => PvpDpsMeleeDamage + PvpDpsSpellDamage + PvpDpsPetDamage;
-
-        public double PvpDpsDps
-        {
-            get
-            {
-                if ( _pvpDpsStartedAt == DateTime.MinValue )
-                {
-                    return 0;
-                }
-
-                double elapsed = Math.Max( 1, ( DateTime.UtcNow - _pvpDpsStartedAt ).TotalSeconds );
-                return Math.Round( PvpDpsTotalDamage / elapsed, 2 );
-            }
-        }
 
         public void Serialize( JObject json, bool global = false )
         {
@@ -238,12 +129,6 @@ namespace ClassicAssist.UI.ViewModels
             options.Add( "TargetNextPvpIncludeMurderer", CurrentOptions.TargetNextPvpIncludeMurderer );
             options.Add( "TargetNextFriendlyIncludeAlly", CurrentOptions.TargetNextFriendlyIncludeAlly );
             options.Add( "TargetNextFriendlyIncludeFriends", CurrentOptions.TargetNextFriendlyIncludeFriends );
-            options.Add( "PvpDpsStopAfterDuration", CurrentOptions.PvpDpsStopAfterDuration );
-            options.Add( "PvpDpsDurationSeconds", CurrentOptions.PvpDpsDurationSeconds );
-            options.Add( "PvpDpsIncludeMelee", CurrentOptions.PvpDpsIncludeMelee );
-            options.Add( "PvpDpsIncludeSpell", CurrentOptions.PvpDpsIncludeSpell );
-            options.Add( "PvpDpsIncludePet", CurrentOptions.PvpDpsIncludePet );
-            options.Add( "PvpDpsIncludeSelfDamageTaken", CurrentOptions.PvpDpsIncludeSelfDamageTaken );
             options.Add( "TargetNextInnocentGuardWarningMessage", CurrentOptions.TargetNextInnocentGuardWarningMessage );
             options.Add( "TargetNextInnocentGuardWarningHue", CurrentOptions.TargetNextInnocentGuardWarningHue );
             options.Add( "HueNotorietyInnocent", CurrentOptions.HueNotorietyInnocent );

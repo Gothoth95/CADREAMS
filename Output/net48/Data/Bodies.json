@@ -91,6 +91,21 @@
   },
   {
     "BodyType": 2,
+    "Graphic": 210,
+    "Name": "Desert Ostard"
+  },
+  {
+    "BodyType": 2,
+    "Graphic": 218,
+    "Name": "Frenzied Ostard"
+  },
+  {
+    "BodyType": 2,
+    "Graphic": 219,
+    "Name": "Forest Ostard"
+  },
+  {
+    "BodyType": 2,
     "Graphic": 220,
     "Name": "Llama"
   },
